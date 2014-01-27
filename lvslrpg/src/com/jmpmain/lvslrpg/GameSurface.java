@@ -58,8 +58,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	 * GameSurface draw method. Game is drawn in this method.
 	 */
 	protected void onDraw(Canvas canvas) {
-		//Calculate and draw FPS, only in debug.
-		if(BuildConfig.DEBUG == true){				
+		//Debug draw.
+		if(BuildConfig.DEBUG == true){
+			
+			//Update fps
 			drawCallCount++;
 			if(System.currentTimeMillis() - lastDrawCallReset > 1000){
 				lastDrawCallReset = System.currentTimeMillis();
@@ -69,12 +71,19 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 			
 			Paint paint = new Paint();
 			paint.setARGB(255, 0, 0, 0);
-			canvas.drawPaint(paint);
+			//canvas.drawPaint(paint);
 
+			//Draw fps
 			paint.setTextSize(20);
 			paint.setARGB(255, 255, 0, 0);
 			canvas.drawText("FPS: " + fps, 20, 20, paint);
+			
+			//Draw ups
+			canvas.drawText("UPS: " + thread.ups, 20, 40, paint);
 		}
+		
+		thread.line.draw(canvas);
+		
 	}
 	
 }

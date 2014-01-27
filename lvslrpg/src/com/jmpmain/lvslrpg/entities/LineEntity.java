@@ -30,18 +30,21 @@ public class LineEntity extends Entity {
 	}
 	
 	public LineEntity(){
-		setX(y = 0);
+		setX(300);
+		setY(300);
 	}
 	
 	@Override
 	public void update(long time) {
-		// TODO Auto-generated method stub
-
+		x += 1;
+		y += 1;
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
-		canvas.drawRect(x, y, x + 1, y + 1, new Paint());
+		Paint paint = new Paint();
+		paint.setARGB(255, 0, 255, 255);
+		canvas.drawRect(x, y, x + 1, y + 1, paint);
 	}
 
 }
