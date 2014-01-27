@@ -20,7 +20,7 @@ import android.widget.VideoView;
  * The main activity.
  */
 public class MainActivity extends Activity {
-
+	private GameSurface surface;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -30,8 +30,8 @@ public class MainActivity extends Activity {
 		//Set as full screen and set main view to GameSurface.
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		setContentView(new GameSurface(this));
-		//setContentView(R.layout.activity_main);
+		surface = new GameSurface(this);
+		setContentView(surface);
 		
 		//Register accelerator to record tilt of screen.
 		((SensorManager)getSystemService(Context.SENSOR_SERVICE)).registerListener(
@@ -48,12 +48,6 @@ public class MainActivity extends Activity {
 			    }, ((SensorManager)getSystemService(Context.SENSOR_SERVICE))
 			    .getSensorList(Sensor.TYPE_ACCELEROMETER).get(0), SensorManager.SENSOR_DELAY_NORMAL);
 		
-		/*
-		VideoView myVideoView = (VideoView)findViewById(R.id.video);
-		myVideoView.setVideoPath(Uri.parse("android.resource://[package]/"+R.raw.finalvid).getPath());
-		myVideoView.setMediaController(new MediaController(this));
-		myVideoView.requestFocus();
-		myVideoView.start();*/
 	}
 
 	@Override

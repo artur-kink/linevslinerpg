@@ -1,6 +1,5 @@
 package com.jmpmain.lvslrpg;
 
-import java.util.Vector;
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -52,10 +51,15 @@ public class GameThread extends Thread{
 			return;
 		
 		Canvas gameCanvas = null;
-
 		//Game loop.
 		while (running) {
 			drawCall(gameCanvas);
+			try{
+				this.sleep(1);
+			}catch (InterruptedException e) {
+				//Ignore
+			}
 		}
 	}
+	
 }
