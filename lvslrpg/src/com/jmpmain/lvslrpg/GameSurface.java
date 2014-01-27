@@ -26,8 +26,11 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	/** Last time fps second had elapsed. */
 	private long lastDrawCallReset;
 	
+	/** LineCanvas where line vs line battles are rendered. */
 	private LineCanvas lineCanvas;
 	
+	/** Default paint handle. */
+	private Paint paint;
 	
 	public GameSurface(Context context) {
 		super(context);
@@ -44,7 +47,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		fps = 0;
 		
 		lineCanvas = new LineCanvas();
-		
+		paint = new Paint();
 		setFocusable(true);
 	}
 
@@ -66,6 +69,15 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	 * GameSurface draw method. Game is drawn in this method.
 	 */
 	protected void onDraw(Canvas canvas) {
+		
+		//Clear screen
+		paint.setARGB(255, 0, 0, 0);
+		canvas.drawPaint(paint);
+		
+		//Draw line canvas.
+		thread.line.draw(lineCanvas);
+		canvas.drawBitmap(lineCanvas.bitmap, getMatrix(), paint);
+		
 		//Debug draw.
 		if(BuildConfig.DEBUG){
 			
@@ -77,10 +89,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 				drawCallCount = 0;
 			}
 			
-			Paint paint = new Paint();
-			paint.setARGB(255, 0, 0, 0);
-			canvas.drawPaint(paint);
-			
 			//Draw fps
 			paint.setTextSize(20);
 			paint.setARGB(255, 255, 0, 0);
@@ -88,9 +96,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 			
 			//Draw ups
 			canvas.drawText("UPS: " + thread.ups, 20, 40, paint);
-			
-			thread.line.draw(lineCanvas);
-			canvas.drawBitmap(lineCanvas.bitmap, getMatrix(), paint);
 		}
 	}
 	
