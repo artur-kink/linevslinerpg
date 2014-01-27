@@ -1,5 +1,8 @@
 *.class
 
+lvslrpg/gen/
+lvslrpg/bin/
+
 # Package Files #
 *.jar
 *.war
