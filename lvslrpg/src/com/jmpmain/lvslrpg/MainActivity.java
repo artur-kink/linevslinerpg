@@ -1,20 +1,14 @@
 package com.jmpmain.lvslrpg;
 
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.app.Activity;
 import android.content.Context;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.MediaController;
-import android.widget.VideoView;
 
 /**
  * The main activity.

@@ -4,7 +4,6 @@ import com.jmpmain.lvslrpg.entities.LineEntity;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -106,7 +105,7 @@ public class GameThread extends Thread implements SensorEventListener{
 			long currentTimeMillis = System.currentTimeMillis();
 			
 			//Update debug parameters.
-			if(BuildConfig.DEBUG == true){				
+			if(BuildConfig.DEBUG){				
 				updateCallCount++;
 				if(System.currentTimeMillis() - lastUpdateCallReset > 1000){
 					lastUpdateCallReset = System.currentTimeMillis();
