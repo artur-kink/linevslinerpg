@@ -11,7 +11,7 @@ import android.view.SurfaceView;
  */
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
-	private GameThread thread;
+	public GameThread thread;
 
 	/** Counter for fps. */
 	private int drawCallCount;
@@ -27,6 +27,8 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		getHolder().addCallback(this);
 		
 		thread = new GameThread(getHolder(), this);
+		thread.setRunning(true);
+		thread.start();
 		
 		drawCallCount = 0;
 		lastDrawCallReset = 0;
@@ -60,7 +62,13 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 			drawCallCount = 0;
 		}
 		
-		canvas.drawText("" + fps, 1, 1, new Paint());
+		Paint paint = new Paint();
+		paint.setARGB(255, 0, 0, 0);
+		canvas.drawPaint(paint);
+		
+		paint.setTextSize(20);
+		paint.setARGB(255, 255, 0, 0);
+		canvas.drawText("FPS: " + fps, 20, 20, paint);
 	}
 	
 }

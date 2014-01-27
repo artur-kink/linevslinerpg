@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-	    GameThread.onTouchEvent(event);
+	    surface.thread.onTouchEvent(event);
 	    return true;
 	}
 	

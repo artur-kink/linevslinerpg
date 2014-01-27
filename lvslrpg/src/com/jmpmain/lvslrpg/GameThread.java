@@ -21,7 +21,7 @@ public class GameThread extends Thread{
 	/**
 	 * Screen touch handler.
 	 */
-	public static void onTouchEvent(MotionEvent event){
+	public void onTouchEvent(MotionEvent event){
 	}
 	
 	private boolean running;
@@ -54,11 +54,7 @@ public class GameThread extends Thread{
 		//Game loop.
 		while (running) {
 			drawCall(gameCanvas);
-			try{
-				this.sleep(1);
-			}catch (InterruptedException e) {
-				//Ignore
-			}
+			
 		}
 	}
 	
