@@ -35,19 +35,8 @@ public class MainActivity extends Activity {
 		
 		//Register accelerator to record tilt of screen.
 		((SensorManager)getSystemService(Context.SENSOR_SERVICE)).registerListener(
-			     new SensorEventListener() {  
-			        @Override
-			        public void onSensorChanged(SensorEvent event) {
-			        	
-			        }
-			        
-			        @Override  
-			        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			        	//Not applicable.
-			        }
-			    }, ((SensorManager)getSystemService(Context.SENSOR_SERVICE))
-			    .getSensorList(Sensor.TYPE_ACCELEROMETER).get(0), SensorManager.SENSOR_DELAY_NORMAL);
-		
+			surface.thread, ((SensorManager)getSystemService(Context.SENSOR_SERVICE))
+			.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0), SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
 	@Override

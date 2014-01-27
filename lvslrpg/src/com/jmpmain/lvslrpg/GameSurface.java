@@ -11,6 +11,7 @@ import android.view.SurfaceView;
  */
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
+	/** Game thread. */
 	public GameThread thread;
 
 	/** Counter for fps. */
@@ -26,10 +27,12 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		super(context);
 		getHolder().addCallback(this);
 		
+		//Initialize thread.
 		thread = new GameThread(getHolder(), this);
 		thread.setRunning(true);
 		thread.start();
 		
+		//Setup fps variables.
 		drawCallCount = 0;
 		lastDrawCallReset = 0;
 		fps = 0;
@@ -55,20 +58,23 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	 * GameSurface draw method. Game is drawn in this method.
 	 */
 	protected void onDraw(Canvas canvas) {
-		drawCallCount++;
-		if(System.currentTimeMillis() - lastDrawCallReset > 1000){
-			lastDrawCallReset = System.currentTimeMillis();
-			fps = drawCallCount;
-			drawCallCount = 0;
+		//Calculate and draw FPS, only in debug.
+		if(BuildConfig.DEBUG == true){				
+			drawCallCount++;
+			if(System.currentTimeMillis() - lastDrawCallReset > 1000){
+				lastDrawCallReset = System.currentTimeMillis();
+				fps = drawCallCount;
+				drawCallCount = 0;
+			}
+			
+			Paint paint = new Paint();
+			paint.setARGB(255, 0, 0, 0);
+			canvas.drawPaint(paint);
+
+			paint.setTextSize(20);
+			paint.setARGB(255, 255, 0, 0);
+			canvas.drawText("FPS: " + fps, 20, 20, paint);
 		}
-		
-		Paint paint = new Paint();
-		paint.setARGB(255, 0, 0, 0);
-		canvas.drawPaint(paint);
-		
-		paint.setTextSize(20);
-		paint.setARGB(255, 255, 0, 0);
-		canvas.drawText("FPS: " + fps, 20, 20, paint);
 	}
 	
 }
