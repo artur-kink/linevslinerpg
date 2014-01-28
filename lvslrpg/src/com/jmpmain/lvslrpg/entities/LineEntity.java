@@ -29,22 +29,32 @@ public class LineEntity extends Entity {
 		this.y = y;
 	}
 	
+	public float xVelocity;
+	public float yVelocity;
+	
+	private float lastXDraw;
+	private float lastYDraw;
+	
 	public LineEntity(){
 		setX(300);
 		setY(300);
+		lastXDraw = 300;
+		lastYDraw = 300;
 	}
 	
 	@Override
 	public void update(long time) {
-		x += 1;
-		y += 1;
+		x += xVelocity;
+		y += yVelocity;
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
 		Paint paint = new Paint();
 		paint.setARGB(255, 0, 255, 255);
-		canvas.drawRect(x, y, x + 1, y + 1, paint);
+		canvas.drawLine(lastXDraw, lastYDraw, x, y, paint);
+		lastXDraw = x;
+		lastYDraw = y;
 	}
 
 }

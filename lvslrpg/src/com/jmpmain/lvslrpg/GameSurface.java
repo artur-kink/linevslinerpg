@@ -96,6 +96,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 			
 			//Draw ups
 			canvas.drawText("UPS: " + thread.ups, 20, 40, paint);
+			
+			//Draw touch position
+			canvas.drawRect(thread.touchX - 5,  thread.touchY - 5, thread.touchX + 5,  thread.touchY + 5, paint);
 		}
 	}
 	

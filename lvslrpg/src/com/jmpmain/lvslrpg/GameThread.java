@@ -45,6 +45,9 @@ public class GameThread extends Thread implements SensorEventListener{
 	 */
 	private boolean running;
 	
+	public int touchX;
+	public int touchY;
+	
 	public LineEntity line;
 	
 	public GameThread(SurfaceHolder holder, GameSurface surface){
@@ -69,6 +72,28 @@ public class GameThread extends Thread implements SensorEventListener{
 	 * Screen touch handler.
 	 */
 	public void onTouchEvent(MotionEvent event){
+		if(event.getAction() == MotionEvent.ACTION_DOWN ||
+			event.getAction() == MotionEvent.ACTION_MOVE){
+			touchX = (int) event.getX();
+			touchY = (int) event.getY();
+			
+			float deltaY = (touchY - line.getY());
+			float deltaX = (touchX - line.getX());
+			
+			float distance = (float) Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+			line.xVelocity = (float) ((deltaX/distance)*5);
+			line.yVelocity = (float) ((deltaY/distance)*5);
+		}
+	}
+	
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Handle sensor accuracy change.	
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		// TODO Handle sensor value changes.
 	}
 	
 	@SuppressLint("WrongCall")
@@ -119,15 +144,4 @@ public class GameThread extends Thread implements SensorEventListener{
 			drawCall(gameCanvas);
 		}
 	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Handle sensor accuracy change.	
-	}
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// TODO Handle sensor value changes.
-	}
-	
 }
