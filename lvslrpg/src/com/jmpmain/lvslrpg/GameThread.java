@@ -49,7 +49,7 @@ public class GameThread extends Thread implements SensorEventListener{
 	public int touchY;
 	
 	public LineEntity line;
-	
+
 	public GameThread(SurfaceHolder holder, GameSurface surface){
 		surfaceHolder = holder;
 		gameSurface = surface;
@@ -59,6 +59,7 @@ public class GameThread extends Thread implements SensorEventListener{
 		lastUpdateCallReset = 0;
 		
 		line = new LineEntity();
+		setRunning(false);
 	}
 	
 	/**
@@ -113,9 +114,7 @@ public class GameThread extends Thread implements SensorEventListener{
 	 * Main game loop.
 	 */
 	public void run() {
-		if(!running)
-			return;
-		
+
 		Canvas gameCanvas = null;
 		//Game loop.
 		while (running) {

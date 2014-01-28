@@ -38,8 +38,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		
 		//Initialize thread.
 		thread = new GameThread(getHolder(), this);
-		thread.setRunning(true);
-		thread.start();
 		
 		//Setup fps variables.
 		drawCallCount = 0;
@@ -47,8 +45,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		fps = 0;
 		
 		paint = new Paint();
-		lineCanvas = new LineCanvas();
-		thread.line.setMap(lineCanvas.bitmap);
 		setFocusable(true);
 	}
 
@@ -58,11 +54,17 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
 	@Override
 	public void surfaceCreated(SurfaceHolder arg0) {
+		if(lineCanvas == null){
+			lineCanvas = new LineCanvas(getWidth(), getHeight());
+			thread.line.setMap(lineCanvas.bitmap);
+		}
+		thread.setRunning(true);
+		thread.start();
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder arg0) {
-		thread.setRunning(true);
+		thread.setRunning(false);
 	}
 	
 	@Override

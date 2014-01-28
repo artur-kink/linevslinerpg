@@ -124,7 +124,7 @@ public class LineEntity extends Entity {
 	 */
 	private boolean isEmpty(float x2, float y2){
 		//Check for out of bounds.
-		if(x < 0 || y < 0)
+		if(x < 0 || y < 0 || x >= map.getWidth() || y >= map.getHeight())
 			return false;
 		
 		//Check if pixel clear.

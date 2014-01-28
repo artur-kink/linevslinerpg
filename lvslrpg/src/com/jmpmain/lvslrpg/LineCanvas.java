@@ -7,8 +7,8 @@ public class LineCanvas extends Canvas {
 	
 	public Bitmap bitmap;
 	
-	public LineCanvas(){
-		bitmap = Bitmap.createBitmap(1280, 1920, Bitmap.Config.ARGB_8888);
+	public LineCanvas(int width, int height){
+		bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 		setBitmap(bitmap);
 		drawARGB(0, 0, 0, 0);
 	}
