@@ -46,8 +46,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		lastDrawCallReset = 0;
 		fps = 0;
 		
-		lineCanvas = new LineCanvas();
 		paint = new Paint();
+		lineCanvas = new LineCanvas();
+		thread.line.setMap(lineCanvas.bitmap);
 		setFocusable(true);
 	}
 
