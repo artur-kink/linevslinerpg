@@ -1,5 +1,7 @@
 package com.jmpmain.lvslrpg;
 
+import java.util.Vector;
+
 import com.jmpmain.lvslrpg.entities.LineEntity;
 
 import android.annotation.SuppressLint;
@@ -49,6 +51,7 @@ public class GameThread extends Thread implements SensorEventListener{
 	public int touchY;
 	
 	public LineEntity line;
+	public Vector<LineEntity> enemies;
 
 	public GameThread(SurfaceHolder holder, GameSurface surface){
 		surfaceHolder = holder;
@@ -58,7 +61,34 @@ public class GameThread extends Thread implements SensorEventListener{
 		ups = 0;
 		lastUpdateCallReset = 0;
 		
-		line = new LineEntity();
+		line = new LineEntity(500, 500);
+		line.setColor(255, 0, 255, 0);
+		
+		enemies = new Vector<LineEntity>();
+		{
+			LineEntity enemy = new LineEntity(10, 500);
+			enemy.setColor(255, 255, 255, 0);
+			enemies.add(enemy);
+		}
+		
+		{
+			LineEntity enemy = new LineEntity(500, 10);
+			enemy.setColor(255, 0, 255, 255);
+			enemies.add(enemy);
+		}
+		
+		{
+			LineEntity enemy = new LineEntity(500, 1500);
+			enemy.setColor(255, 0, 0, 255);
+			enemies.add(enemy);
+		}
+		
+		{
+			LineEntity enemy = new LineEntity(1000, 500);
+			enemy.setColor(255, 255, 0, 0);
+			enemies.add(enemy);
+		}
+		
 		setRunning(false);
 	}
 	
@@ -77,13 +107,7 @@ public class GameThread extends Thread implements SensorEventListener{
 			event.getAction() == MotionEvent.ACTION_MOVE){
 			touchX = (int) event.getX();
 			touchY = (int) event.getY();
-			
-			float deltaY = (touchY - line.getY());
-			float deltaX = (touchX - line.getX());
-			
-			float distance = (float) Math.sqrt(deltaX*deltaX + deltaY*deltaY);
-			line.xVelocity = (float) ((deltaX/distance)*5);
-			line.yVelocity = (float) ((deltaY/distance)*5);
+			line.setTarget(event.getX(), event.getY());
 		}
 	}
 	
@@ -139,8 +163,14 @@ public class GameThread extends Thread implements SensorEventListener{
 			}
 			
 			line.update(currentTimeMillis);
-			
-			drawCall(gameCanvas);
+			for(int i = 0; i < enemies.size(); i++){
+				enemies.get(i).setTarget(line.getX(), line.getY());
+				enemies.get(i).update(currentTimeMillis);
+				if(enemies.get(i).dead){
+					enemies.remove(i);
+					i--;
+				}
+			}drawCall(gameCanvas);
 		}
 	}
 }

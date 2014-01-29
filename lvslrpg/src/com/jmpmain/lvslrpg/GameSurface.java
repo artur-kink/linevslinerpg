@@ -57,6 +57,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		if(lineCanvas == null){
 			lineCanvas = new LineCanvas(getWidth(), getHeight());
 			thread.line.setMap(lineCanvas.bitmap);
+			
+			for(int i = 0; i < thread.enemies.size(); i++){
+				thread.enemies.get(i).setMap(lineCanvas.bitmap);
+			}
 		}
 		thread.setRunning(true);
 		thread.start();
@@ -79,6 +83,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		
 		//Draw line canvas.
 		thread.line.draw(lineCanvas);
+		for(int i = 0; i < thread.enemies.size(); i++){
+			thread.enemies.get(i).draw(lineCanvas);
+		}
 		canvas.drawBitmap(lineCanvas.bitmap, getMatrix(), paint);
 		
 		//Debug draw.
@@ -94,11 +101,14 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 			
 			//Draw fps
 			paint.setTextSize(20);
-			paint.setARGB(255, 255, 0, 0);
+			paint.setARGB(255, 255, 255, 255);
 			canvas.drawText("FPS: " + fps, 20, 20, paint);
 			
 			//Draw ups
 			canvas.drawText("UPS: " + thread.ups, 20, 40, paint);
+			
+			//Draw player health
+			canvas.drawText("Health: " + thread.line.health, 20, 60, paint);
 			
 			//Draw touch position
 			canvas.drawRect(thread.touchX - 5,  thread.touchY - 5, thread.touchX + 5,  thread.touchY + 5, paint);
