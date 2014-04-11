@@ -114,9 +114,9 @@ public class GameThread extends Thread implements SensorEventListener{
 			touchY = (int) event.getY();
 			int radius = (int)((float)gameSurface.getWidth()*0.05);
 			
-			if(touchY > gameSurface.getHeight() - (radius + 20) && touchY < gameSurface.getHeight() - 20){
+			if(touchY > gameSurface.getHeight() - (radius*2 + 20) && touchY < gameSurface.getHeight() - 20){
 				//Left turn button pressed.
-				if(touchX > 20 && touchX < radius + 20){
+				if(touchX > 20 && touchX < radius*2 + 20){
 					if(line.getYVelocity() != 0){
 						line.setDirection(-1, 0);
 					}else if(line.getXVelocity() != 0){
@@ -124,7 +124,7 @@ public class GameThread extends Thread implements SensorEventListener{
 					}
 				}
 				//Right turn button pressed.
-				if(touchX > gameSurface.getWidth() - (radius + 20) && touchX < gameSurface.getWidth() - 20){
+				if(touchX > gameSurface.getWidth() - (radius*2 + 20) && touchX < gameSurface.getWidth() - 20){
 					if(line.getYVelocity() != 0){
 						line.setDirection(1, 0);
 					}else if(line.getXVelocity() != 0){
