@@ -154,11 +154,13 @@ public class LineEntity extends Entity {
 	@Override
 	public void draw(Canvas canvas) {
 		//Fill tile player is in.
-		paint.setStrokeWidth(1);
-		canvas.drawRect(lastXDraw*map.tileSize, lastYDraw*map.tileSize,
-				lastXDraw*map.tileSize + map.tileSize, lastYDraw*map.tileSize + map.tileSize, paint);
-		lastXDraw = (int)x;
-		lastYDraw = (int)y;
+		if(lastXDraw != (int)x || lastYDraw != (int)y){
+			paint.setStrokeWidth(1);
+			canvas.drawRect(lastXDraw*map.tileSize, lastYDraw*map.tileSize,
+					lastXDraw*map.tileSize + map.tileSize, lastYDraw*map.tileSize + map.tileSize, paint);
+			lastXDraw = (int)x;
+			lastYDraw = (int)y;
+		}
 	}
 
 }

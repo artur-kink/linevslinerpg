@@ -26,8 +26,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	/** Last time fps second had elapsed. */
 	private long lastDrawCallReset;
 	
-	public Map map;
-	
 	/** Default paint handle. */
 	private Paint paint;
 	
@@ -53,12 +51,12 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
 	@Override
 	public void surfaceCreated(SurfaceHolder arg0) {
-		if(map == null){
-			map = new Map(getWidth(), getHeight(), 12);
-			thread.line.setMap(map);
+		if(thread.map == null){
+			thread.map = new Map(getWidth(), getHeight(), 12);
+			thread.line.setMap(thread.map);
 			
 			for(int i = 0; i < thread.enemies.size(); i++){
-				thread.enemies.get(i).setMap(map);
+				thread.enemies.get(i).setMap(thread.map);
 			}
 		}
 		thread.setRunning(true);
@@ -81,11 +79,11 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawPaint(paint);
 		
 		//Draw line canvas.
-		thread.line.draw(map.lineCanvas);
+		thread.line.draw(thread.map.lineCanvas);
 		for(int i = 0; i < thread.enemies.size(); i++){
-			thread.enemies.get(i).draw(map.lineCanvas);
+			thread.enemies.get(i).draw(thread.map.lineCanvas);
 		}
-		canvas.drawBitmap(map.lineCanvas.bitmap, getMatrix(), paint);
+		canvas.drawBitmap(thread.map.lineCanvas.bitmap, getMatrix(), paint);
 		
 		//Draw turn buttons.
 		paint.setARGB(128,  255, 255,  255);

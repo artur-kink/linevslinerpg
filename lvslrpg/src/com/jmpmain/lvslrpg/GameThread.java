@@ -50,6 +50,9 @@ public class GameThread extends Thread implements SensorEventListener{
 	public int touchX;
 	public int touchY;
 	
+	/** Current game map. */
+	public Map map;
+	
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
 
@@ -57,36 +60,38 @@ public class GameThread extends Thread implements SensorEventListener{
 		surfaceHolder = holder;
 		gameSurface = surface;
 		
+		
+		
 		updateCallCount = 0;
 		ups = 0;
 		lastUpdateCallReset = 0;
 		
 		line = new LineEntity(500/12, 500/12);
 		line.setDirection(1, 0);
-		line.setColor(255, 0, 255, 0);
+		line.setColor(128, 0, 255, 0);
 		
 		enemies = new Vector<LineEntity>();
 		{
 			LineEntity enemy = new LineEntity(10/12, 500/12);
-			enemy.setColor(255, 255, 255, 0);
+			enemy.setColor(128, 255, 255, 0);
 			enemies.add(enemy);
 		}
 		
 		{
 			LineEntity enemy = new LineEntity(500/12, 10/12);
-			enemy.setColor(255, 0, 255, 255);
+			enemy.setColor(128, 0, 255, 255);
 			enemies.add(enemy);
 		}
 		
 		{
 			LineEntity enemy = new LineEntity(500/12, 1500/12);
-			enemy.setColor(255, 0, 0, 255);
+			enemy.setColor(128, 0, 0, 255);
 			enemies.add(enemy);
 		}
 		
 		{
 			LineEntity enemy = new LineEntity(1000/12, 500/12);
-			enemy.setColor(255, 255, 0, 0);
+			enemy.setColor(128, 255, 0, 0);
 			enemies.add(enemy);
 		}
 		
