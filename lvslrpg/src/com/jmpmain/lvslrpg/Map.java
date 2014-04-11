@@ -35,21 +35,10 @@ public class Map {
 		width = w/t;
 		height = h/t;
 		map = new TileType[height][width];
-		
-		Paint outline = new Paint();
-		outline.setStrokeWidth(0);
-		outline.setColor(Color.DKGRAY);
-		
-		//Blank map.
 		for(int r = 0; r < height; r++){
-			lineCanvas.drawLine(0, r*tileSize, w, r*tileSize + 1, outline);
 			for(int c = 0; c < width; c++){
 				map[r][c] = TileType.Empty;
 			}
-		}
-		
-		for(int c = 0; c < width; c++){
-			lineCanvas.drawLine(c*tileSize, 0, c*tileSize + 1, h, outline);
 		}
 	}
 	

@@ -1,5 +1,8 @@
 package com.jmpmain.lvslrpg;
 
+import com.jmpmain.lvslrpg.Map.TileType;
+
+import android.graphics.Color;
 import android.graphics.Paint;
 
 public class MapGenerator {
@@ -11,9 +14,9 @@ public class MapGenerator {
 	private static Paint GetTypeColor(Map.TileType type){
 		Paint paint = new Paint();
 		
-		int r =  (int)((Math.random()-0.5f)*20);
-		int g =  (int)((Math.random()-0.5f)*20);
-		int b =  (int)((Math.random()-0.5f)*20);
+		int r =  (int)((Math.random()-0.5f)*10);
+		int g =  (int)((Math.random()-0.5f)*10);
+		int b =  (int)((Math.random()-0.5f)*10);
 		
 		if(type == Map.TileType.Ground)
 			paint.setARGB(255, 25 + r, 200 + g, 25 + b);
@@ -31,8 +34,26 @@ public class MapGenerator {
 		MapTheme theme = MapTheme.Temperate;
 		CreateGround(map, Map.TileType.Ground);
 		
-		CreatePatch(map, Map.TileType.Water, 30, 30);
+		for(int i = 0; i < Math.random()*5; i++){
+			CreatePatch(map, Map.TileType.Water, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+		}
 		CreateBorder(map, Map.TileType.Water, Map.TileType.Sand, 3);
+		
+		
+		Paint outline = new Paint();
+		outline.setStrokeWidth(0);
+		outline.setARGB(20, 0, 0, 0);
+		
+		//Draw map.
+		DrawMap(map);
+		
+		//Draw map grid.
+		for(int r = 0; r < map.height; r++){
+			map.lineCanvas.drawLine(0, r*tileSize, width, r*tileSize, outline);
+		}
+		for(int c = 0; c < map.width; c++){
+			map.lineCanvas.drawLine(c*tileSize, 0, c*tileSize, height, outline);
+		}
 		
 		return map;
 	}
@@ -41,8 +62,7 @@ public class MapGenerator {
 		
 		for(int r = 0; r < map.height; r++){
 			for(int c = 0; c < map.width; c++){
-				map.lineCanvas.drawRect(c*map.tileSize + 1, r*map.tileSize + 1,
-					c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize, GetTypeColor(type));
+				map.setTile(c, r, Map.TileType.Ground);
 			}
 		}
 	}
@@ -52,38 +72,28 @@ public class MapGenerator {
 		for(int r = 0; r < map.height; r++){
 			for(int c = 0; c < map.width; c++){
 				for(int w = 1; w <= width; w++){
+					
 					if(c > w){
 						if(map.getTile(c, r) != target && map.getTile(c-w, r) == target){
 							map.setTile(c, r, borderType);
-							map.lineCanvas.drawRect(c*map.tileSize + 1, r*map.tileSize + 1,
-									c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize, GetTypeColor(borderType));
-							
 						}
 					}
+					
 					if(c < map.width-w){
 						if(map.getTile(c, r) != target && map.getTile(c+w, r) == target){
 							map.setTile(c, r, borderType);
-							map.lineCanvas.drawRect(c*map.tileSize + 1, r*map.tileSize + 1,
-									c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize, GetTypeColor(borderType));
-							
 						}
 					}
 					
 					if(r > w){
 						if(map.getTile(c, r) != target && map.getTile(c, r-w) == target){
 							map.setTile(c, r, borderType);
-							map.lineCanvas.drawRect(c*map.tileSize + 1, r*map.tileSize + 1,
-									c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize, GetTypeColor(borderType));
-							
 						}
 					}
 					
 					if(r < map.height-w){
 						if(map.getTile(c, r) != target && map.getTile(c, r+w) == target){
 							map.setTile(c, r, borderType);
-							map.lineCanvas.drawRect(c*map.tileSize + 1, r*map.tileSize + 1,
-									c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize, GetTypeColor(borderType));
-							
 						}
 					}
 					
@@ -94,14 +104,14 @@ public class MapGenerator {
 	}
 	
 	private static void CreatePatch(Map map, Map.TileType type, int x, int y){
-		recursivePatch(map, type, x, y, 14);
+		recursivePatch(map, type, x, y, 7);
 	}
 	
 	private static void recursivePatch(Map map, Map.TileType type, int x, int y, int depth){
 		if(depth <= 0 || x >= map.width || x < 0 || y >= map.height || y < 0)
 			return;
 		
-		map.lineCanvas.drawRect(x*map.tileSize + 1, y*map.tileSize + 1,
+		map.lineCanvas.drawRect(x*map.tileSize, y*map.tileSize,
 				x*map.tileSize + map.tileSize, y*map.tileSize + map.tileSize, GetTypeColor(type));
 		
 		map.setTile(x, y, type);
@@ -114,5 +124,16 @@ public class MapGenerator {
 			recursivePatch(map, type, x, y+1, depth-1);
 		if(Math.random() < 0.8)
 			recursivePatch(map, type, x, y+1, depth-2);
+	}
+	
+	private static void DrawMap(Map map){
+		for(int r = 0; r < map.height; r++){
+			for(int c = 0; c < map.width; c++){
+				map.lineCanvas.drawRect(c*map.tileSize, r*map.tileSize,
+						c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize,
+						GetTypeColor(map.getTile(c, r)));
+			}
+		}
+		
 	}
 }
