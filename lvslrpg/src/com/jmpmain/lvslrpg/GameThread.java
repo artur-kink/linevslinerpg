@@ -62,6 +62,7 @@ public class GameThread extends Thread implements SensorEventListener{
 		lastUpdateCallReset = 0;
 		
 		line = new LineEntity(500, 500);
+		line.setDirection(1, 0);
 		line.setColor(255, 0, 255, 0);
 		
 		enemies = new Vector<LineEntity>();
@@ -103,11 +104,35 @@ public class GameThread extends Thread implements SensorEventListener{
 	 * Screen touch handler.
 	 */
 	public void onTouchEvent(MotionEvent event){
-		if(event.getAction() == MotionEvent.ACTION_DOWN ||
+		if(event.getAction() == MotionEvent.ACTION_UP){
+			touchX = (int) event.getX();
+			touchY = (int) event.getY();
+			int radius = (int)((float)gameSurface.getWidth()*0.05);
+			
+			if(touchY > gameSurface.getHeight() - (radius + 20) && touchY < gameSurface.getHeight() - 20){
+				//Left turn button pressed.
+				if(touchX > 20 && touchX < radius + 20){
+					if(line.getYVelocity() != 0){
+						line.setDirection(-1, 0);
+					}else if(line.getXVelocity() != 0){
+						line.setDirection(0, 1);
+					}
+				}
+				//Right turn button pressed.
+				if(touchX > gameSurface.getWidth() - (radius + 20) && touchX < gameSurface.getWidth() - 20){
+					if(line.getYVelocity() != 0){
+						line.setDirection(1, 0);
+					}else if(line.getXVelocity() != 0){
+						line.setDirection(0, -1);
+					}
+				}
+			}
+			
+		}else if(event.getAction() == MotionEvent.ACTION_DOWN ||
 			event.getAction() == MotionEvent.ACTION_MOVE){
 			touchX = (int) event.getX();
 			touchY = (int) event.getY();
-			line.setTarget(event.getX(), event.getY());
+			//line.setTarget(event.getX(), event.getY());
 		}
 	}
 	

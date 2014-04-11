@@ -37,8 +37,19 @@ public class LineEntity extends Entity {
 		lastYCheck = y;
 	}
 	
-	public float xVelocity;
-	public float yVelocity;
+	/** Horizontal velocity. */
+	private float xVelocity;
+	
+	public float getXVelocity(){
+		return xVelocity;
+	}
+	
+	/** Vertical velocity. */
+	private float yVelocity;
+	
+	public float getYVelocity(){
+		return yVelocity;
+	}
 	
 	/** Last x position where line was drawn. */
 	private float lastXDraw;
@@ -51,13 +62,48 @@ public class LineEntity extends Entity {
 		map = m;
 	}
 	
-	public LineEntity(){
-		setX(300);
-		setY(300);
-		lastXDraw = 300;
-		lastYDraw = 300;
-		
+	public int health;
+	public int maxHealth;
+	public boolean dead;
+	
+	/** Paint used to draw line. */
+	private Paint paint;
+	
+	/** Set line color. */
+	public void setColor(int a, int r, int g, int b){
+		paint.setARGB(a, r, g, b);
+	}
+	
+	public LineEntity(int pX, int pY){
+		setX(pX);
+		setY(pY);
+		lastXDraw = pX;
+		lastYDraw = pY;
+		health = maxHealth = 20;
 		xVelocity = yVelocity = 0;
+		dead = false;
+		
+		paint = new Paint();
+	}
+	
+	public void setDirection(float x, float y){
+		xVelocity = x;
+		yVelocity = y;
+	}
+	
+	public void setTarget(float tX, float tY){
+		float deltaY = (tY - getY());
+		float deltaX = (tX - getX());
+		
+		if(Math.abs(deltaX) > Math.abs(deltaY)){
+			if(xVelocity == 0){
+				setDirection(xVelocity = Math.signum(deltaX), 0);
+			}
+		}else{
+			if(yVelocity == 0){
+				setDirection(0 , yVelocity = Math.signum(deltaY));
+			}
+		}
 	}
 	
 	@Override
@@ -93,7 +139,7 @@ public class LineEntity extends Entity {
 					lastXCheck = x;
 					lastYCheck = y;
 					if(!isEmpty(x, y)){
-						x = y = 300;
+						health--;
 						break;
 					}
 				}
@@ -111,8 +157,11 @@ public class LineEntity extends Entity {
 			lastXCheck = x;
 			lastYCheck = y;
 			if(!isEmpty(x, y)){
-				x = y = 300;
+				health--;
 			}
+		}
+		if(health < 0){
+			dead = true;
 		}
 	}
 
@@ -133,10 +182,9 @@ public class LineEntity extends Entity {
 	
 	@Override
 	public void draw(Canvas canvas) {
-		Paint paint = new Paint();
-		paint.setARGB(255, 0, 255, 255);
 		//Draw line between last draw position and current position.
 		canvas.drawLine(lastXDraw, lastYDraw, x, y, paint);
+		paint.setStrokeWidth(1);
 		lastXDraw = x;
 		lastYDraw = y;
 	}
