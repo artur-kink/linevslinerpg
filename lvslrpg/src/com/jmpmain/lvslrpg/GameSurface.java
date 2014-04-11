@@ -26,8 +26,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	/** Last time fps second had elapsed. */
 	private long lastDrawCallReset;
 	
-	/** LineCanvas where line vs line battles are rendered. */
-	private LineCanvas lineCanvas;
+	public Map map;
 	
 	/** Default paint handle. */
 	private Paint paint;
@@ -54,12 +53,12 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
 	@Override
 	public void surfaceCreated(SurfaceHolder arg0) {
-		if(lineCanvas == null){
-			lineCanvas = new LineCanvas(getWidth(), getHeight());
-			thread.line.setMap(lineCanvas.bitmap);
+		if(map == null){
+			map = new Map(getWidth(), getHeight(), 12);
+			thread.line.setMap(map);
 			
 			for(int i = 0; i < thread.enemies.size(); i++){
-				thread.enemies.get(i).setMap(lineCanvas.bitmap);
+				thread.enemies.get(i).setMap(map);
 			}
 		}
 		thread.setRunning(true);
@@ -82,11 +81,11 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawPaint(paint);
 		
 		//Draw line canvas.
-		thread.line.draw(lineCanvas);
+		thread.line.draw(map.lineCanvas);
 		for(int i = 0; i < thread.enemies.size(); i++){
-			thread.enemies.get(i).draw(lineCanvas);
+			thread.enemies.get(i).draw(map.lineCanvas);
 		}
-		canvas.drawBitmap(lineCanvas.bitmap, getMatrix(), paint);
+		canvas.drawBitmap(map.lineCanvas.bitmap, getMatrix(), paint);
 		
 		//Draw turn buttons.
 		paint.setARGB(128,  255, 255,  255);

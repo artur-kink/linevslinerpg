@@ -1,5 +1,7 @@
 package com.jmpmain.lvslrpg.entities;
 
+import com.jmpmain.lvslrpg.Map;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -15,9 +17,9 @@ public class LineEntity extends Entity {
 	private float y;
 	
 	/** Last x position where map collision was checked. */
-	private float lastXCheck;
+	private int lastXCheck;
 	/** Last y position where map collision was checked. */
-	private float lastYCheck;
+	private int lastYCheck;
 	
 	public float getX() {
 		return x;
@@ -25,7 +27,7 @@ public class LineEntity extends Entity {
 
 	public void setX(float x) {
 		this.x = x;
-		lastXCheck = x;
+		lastXCheck = (int)x;
 	}
 
 	public float getY() {
@@ -34,8 +36,10 @@ public class LineEntity extends Entity {
 
 	public void setY(float y) {
 		this.y = y;
-		lastYCheck = y;
+		lastYCheck = (int)y;
 	}
+	
+	public float velocity;
 	
 	/** Horizontal velocity. */
 	private float xVelocity;
@@ -52,13 +56,13 @@ public class LineEntity extends Entity {
 	}
 	
 	/** Last x position where line was drawn. */
-	private float lastXDraw;
+	private int lastXDraw;
 	/** Last y position where line was drawn. */
-	private float lastYDraw;
+	private int lastYDraw;
 	
-	/** Bitmap where line entity exists. */
-	private Bitmap map;
-	public void setMap(Bitmap m){
+	/** Map where line entity exists. */
+	private Map map;
+	public void setMap(Map m){
 		map = m;
 	}
 	
@@ -80,6 +84,7 @@ public class LineEntity extends Entity {
 		lastXDraw = pX;
 		lastYDraw = pY;
 		health = maxHealth = 20;
+		velocity = 0.50f;
 		xVelocity = yVelocity = 0;
 		dead = false;
 		
@@ -87,8 +92,8 @@ public class LineEntity extends Entity {
 	}
 	
 	public void setDirection(float x, float y){
-		xVelocity = x;
-		yVelocity = y;
+		xVelocity = x*velocity;
+		yVelocity = y*velocity;
 	}
 	
 	public void setTarget(float tX, float tY){
@@ -109,56 +114,22 @@ public class LineEntity extends Entity {
 	@Override
 	public void update(long time) {
 		
-		//Update position pixel by pixel to check all pixel
-		//collisions, This check is done when speed is greater than 1,
-		//to avoid skipping pixels.
-		if(Math.abs(xVelocity) > 1 || Math.abs(yVelocity) > 1){
-			float incrementXAmount = 1.0f;
-			if(xVelocity < 0)
-				incrementXAmount = -1.0f;
+		//Update entity position.
+		x += xVelocity;
+		y += yVelocity;
 			
-			float incrementYAmount = 1.0f;
-			if(yVelocity < 0)
-				incrementYAmount = -1.0f;
-			
-			float xAmount = Math.abs(xVelocity);
-			float yAmount = Math.abs(yVelocity);
-			//Increment x and y positions pixel by pixel.
-			while(xAmount > 1 || yAmount > 1){
-				if(xAmount > 1){
-					x += incrementXAmount;
-					xAmount--;
-				}
-				if(yAmount > 1){
-					y += incrementYAmount;
-					yAmount--;
-				}
-				
-				//If position has changed by a pixel, check for collision.
-				if(lastXCheck != x || lastYCheck != y){
-					lastXCheck = x;
-					lastYCheck = y;
-					if(!isEmpty(x, y)){
-						health--;
-						break;
-					}
-				}
-			}
-			//Move any remaining amount, < 1.
-			x += incrementXAmount*xAmount;
-			y += incrementYAmount*yAmount;
-		}else{
-			x += xVelocity;
-			y += yVelocity;
-		}
-		
 		//If position has changed check for collision.
-		if(lastXCheck != x || lastYCheck != y){
-			lastXCheck = x;
-			lastYCheck = y;
+		if(lastXCheck != (int)x || lastYCheck != (int)y){
+			lastXCheck = (int)x;
+			lastYCheck = (int)y;
+			
 			if(!isEmpty(x, y)){
 				health--;
 			}
+			
+			if(x >= 0 && y >= 0 && x < map.width && y < map.height)
+				map.setTile(lastXCheck, lastYCheck, (byte)1);
+			
 		}
 		if(health < 0){
 			dead = true;
@@ -173,20 +144,21 @@ public class LineEntity extends Entity {
 	 */
 	private boolean isEmpty(float x2, float y2){
 		//Check for out of bounds.
-		if(x < 0 || y < 0 || x >= map.getWidth() || y >= map.getHeight())
+		if(x < 0 || y < 0 || x >= map.width || y >= map.height)
 			return false;
 		
 		//Check if pixel clear.
-		return map.getPixel((int)x2, (int)y2) == 0;
+		return map.getTile((int)x2, (int)y2) == 0;
 	}
 	
 	@Override
 	public void draw(Canvas canvas) {
-		//Draw line between last draw position and current position.
-		canvas.drawLine(lastXDraw, lastYDraw, x, y, paint);
+		//Fill tile player is in.
 		paint.setStrokeWidth(1);
-		lastXDraw = x;
-		lastYDraw = y;
+		canvas.drawRect(lastXDraw*map.tileSize, lastYDraw*map.tileSize,
+				lastXDraw*map.tileSize + map.tileSize, lastYDraw*map.tileSize + map.tileSize, paint);
+		lastXDraw = (int)x;
+		lastYDraw = (int)y;
 	}
 
 }
