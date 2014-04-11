@@ -52,7 +52,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	@Override
 	public void surfaceCreated(SurfaceHolder arg0) {
 		if(thread.map == null){
-			thread.map = new Map(getWidth(), getHeight(), 12);
+			thread.map = MapGenerator.GenerateMap(getWidth(), getHeight(), 12);
 			thread.line.setMap(thread.map);
 			
 			for(int i = 0; i < thread.enemies.size(); i++){

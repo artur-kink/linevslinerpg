@@ -128,7 +128,7 @@ public class LineEntity extends Entity {
 			}
 			
 			if(x >= 0 && y >= 0 && x < map.width && y < map.height)
-				map.setTile(lastXCheck, lastYCheck, (byte)1);
+				map.setTile(lastXCheck, lastYCheck, Map.TileType.Entity);
 			
 		}
 		if(health < 0){
@@ -148,7 +148,7 @@ public class LineEntity extends Entity {
 			return false;
 		
 		//Check if pixel clear.
-		return map.getTile((int)x2, (int)y2) == 0;
+		return map.getTile((int)x2, (int)y2) != Map.TileType.Entity;
 	}
 	
 	@Override

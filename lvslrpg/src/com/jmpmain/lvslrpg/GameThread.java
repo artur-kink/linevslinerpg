@@ -60,8 +60,6 @@ public class GameThread extends Thread implements SensorEventListener{
 		surfaceHolder = holder;
 		gameSurface = surface;
 		
-		
-		
 		updateCallCount = 0;
 		ups = 0;
 		lastUpdateCallReset = 0;
