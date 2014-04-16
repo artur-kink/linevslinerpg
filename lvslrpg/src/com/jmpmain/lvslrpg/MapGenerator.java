@@ -1,8 +1,5 @@
 package com.jmpmain.lvslrpg;
 
-import com.jmpmain.lvslrpg.Map.TileType;
-
-import android.graphics.Color;
 import android.graphics.Paint;
 
 public class MapGenerator {
@@ -11,6 +8,9 @@ public class MapGenerator {
 		Temperate
 	}
 	
+	/**
+	 * Get color of tile based on type.
+	 */
 	private static Paint GetTypeColor(Map.TileType type){
 		Paint paint = new Paint();
 		
@@ -28,6 +28,13 @@ public class MapGenerator {
 		return paint;
 	}
 	
+	/**
+	 * Generate random map.
+	 * @param width Width of map in tiles.
+	 * @param height Height of map in tiles.
+	 * @param tileSize Size of tiles in map.
+	 * @return Generated map.
+	 */
 	public static Map GenerateMap(int width, int height, int tileSize){
 		Map map = new Map(width, height, tileSize);
 		
@@ -57,7 +64,11 @@ public class MapGenerator {
 		
 		return map;
 	}
-		
+	
+	/**
+	 * Set entire map to specified tile type.
+	 * @param type Type to set to.
+	 */
 	private static void CreateGround(Map map, Map.TileType type){
 		
 		for(int r = 0; r < map.height; r++){
@@ -116,16 +127,19 @@ public class MapGenerator {
 		
 		map.setTile(x, y, type);
 		
-		if(Math.random() < 0.8)
+		if(Math.random() > 0.5)
 			recursivePatch(map, type, x-1, y, depth-1);
-		if(Math.random() < 0.8)
-			recursivePatch(map, type, x+1, y, depth-2);
-		if(Math.random() < 0.8)
+		if(Math.random() > 0.5)
+			recursivePatch(map, type, x+1, y, depth-1);
+		if(Math.random() > 0.5)
+			recursivePatch(map, type, x, y-1, depth-1);
+		if(Math.random() > 0.5)
 			recursivePatch(map, type, x, y+1, depth-1);
-		if(Math.random() < 0.8)
-			recursivePatch(map, type, x, y+1, depth-2);
 	}
 	
+	/**
+	 * Draw map tiles based on tile info.
+	 */
 	private static void DrawMap(Map map){
 		for(int r = 0; r < map.height; r++){
 			for(int c = 0; c < map.width; c++){

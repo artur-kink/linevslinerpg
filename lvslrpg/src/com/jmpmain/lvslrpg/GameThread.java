@@ -64,36 +64,51 @@ public class GameThread extends Thread implements SensorEventListener{
 		ups = 0;
 		lastUpdateCallReset = 0;
 		
+		setRunning(false);
+	}
+	
+	/**
+	 * Called when the game can be initialized.
+	 * This means the graphics and application has been setup
+	 * and ready to be used.
+	 */
+	public void initGame(){
+		
+		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 12);
+		
 		line = new LineEntity(500/12, 500/12);
 		line.setDirection(1, 0);
 		line.setColor(128, 0, 255, 0);
+		line.setMap(map);
 		
 		enemies = new Vector<LineEntity>();
 		{
 			LineEntity enemy = new LineEntity(10/12, 500/12);
 			enemy.setColor(128, 255, 255, 0);
+			enemy.setMap(map);
 			enemies.add(enemy);
 		}
 		
 		{
 			LineEntity enemy = new LineEntity(500/12, 10/12);
 			enemy.setColor(128, 0, 255, 255);
+			enemy.setMap(map);
 			enemies.add(enemy);
 		}
 		
 		{
 			LineEntity enemy = new LineEntity(500/12, 1500/12);
 			enemy.setColor(128, 0, 0, 255);
+			enemy.setMap(map);
 			enemies.add(enemy);
 		}
 		
 		{
 			LineEntity enemy = new LineEntity(1000/12, 500/12);
 			enemy.setColor(128, 255, 0, 0);
+			enemy.setMap(map);
 			enemies.add(enemy);
 		}
-		
-		setRunning(false);
 	}
 	
 	/**

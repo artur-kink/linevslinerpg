@@ -9,6 +9,9 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * The main activity.
@@ -25,7 +28,16 @@ public class MainActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		surface = new GameSurface(this);
-		setContentView(surface);
+		
+		//Create frame layout to contain game surface and ui layout.
+		FrameLayout baseLayout = new FrameLayout(this);
+		baseLayout.addView(surface);
+		
+		//Create ui layout and add it above the game surface.
+		LinearLayout uiLayout = new LinearLayout(this);
+		baseLayout.addView(uiLayout);
+		
+		setContentView(baseLayout);
 		
 		//Register accelerator to record tilt of screen.
 		((SensorManager)getSystemService(Context.SENSOR_SERVICE)).registerListener(

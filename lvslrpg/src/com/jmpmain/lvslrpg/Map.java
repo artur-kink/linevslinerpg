@@ -1,10 +1,5 @@
 package com.jmpmain.lvslrpg;
 
-import com.jmpmain.lvslrpg.Map.TileType;
-
-import android.graphics.Color;
-import android.graphics.Paint;
-
 public class Map {
 
 	public enum TileType{
@@ -15,6 +10,7 @@ public class Map {
 		Sand
 	}
 	
+	/** Tile type array. The map array. */
 	private TileType map[][];
 	
 	/** Map width in tiles. */
