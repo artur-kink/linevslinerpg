@@ -11,12 +11,17 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AbsoluteLayout;
+import android.widget.Button;
 
 /**
  * Main game thread.
  * All game logic is managed here.
  */
-public class GameThread extends Thread implements SensorEventListener{
+public class GameThread extends Thread
+	implements SensorEventListener, OnClickListener{
 	
 	/** Counter for updates per second(ups). */
 	private int updateCallCount;
@@ -42,6 +47,11 @@ public class GameThread extends Thread implements SensorEventListener{
 	 */
 	private GameSurface gameSurface;
 	
+	public AbsoluteLayout uiLayout;
+	
+	private Button leftButton;
+	private Button rightButton;
+	
 	/**
 	 * Thread running state.
 	 */
@@ -56,6 +66,8 @@ public class GameThread extends Thread implements SensorEventListener{
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
 
+	
+	
 	public GameThread(SurfaceHolder holder, GameSurface surface){
 		surfaceHolder = holder;
 		gameSurface = surface;
@@ -109,6 +121,19 @@ public class GameThread extends Thread implements SensorEventListener{
 			enemy.setMap(map);
 			enemies.add(enemy);
 		}
+		
+		leftButton = new Button(MainActivity.context);
+		leftButton.setOnClickListener(this);
+		uiLayout.addView(leftButton,
+			new AbsoluteLayout.LayoutParams(100, 100,
+				0, gameSurface.getHeight() - 100));
+		
+		rightButton = new Button(MainActivity.context);
+		rightButton.setOnClickListener(this);
+		uiLayout.addView(rightButton,
+			new AbsoluteLayout.LayoutParams(100, 100,
+				gameSurface.getWidth() - 100, gameSurface.getHeight() - 100));
+		
 	}
 	
 	/**
@@ -122,31 +147,7 @@ public class GameThread extends Thread implements SensorEventListener{
 	 * Screen touch handler.
 	 */
 	public void onTouchEvent(MotionEvent event){
-		if(event.getAction() == MotionEvent.ACTION_UP){
-			touchX = (int) event.getX();
-			touchY = (int) event.getY();
-			int radius = (int)((float)gameSurface.getWidth()*0.05);
-			
-			if(touchY > gameSurface.getHeight() - (radius*2 + 20) && touchY < gameSurface.getHeight() - 20){
-				//Left turn button pressed.
-				if(touchX > 20 && touchX < radius*2 + 20){
-					if(line.getYVelocity() != 0){
-						line.setDirection(-1, 0);
-					}else if(line.getXVelocity() != 0){
-						line.setDirection(0, 1);
-					}
-				}
-				//Right turn button pressed.
-				if(touchX > gameSurface.getWidth() - (radius*2 + 20) && touchX < gameSurface.getWidth() - 20){
-					if(line.getYVelocity() != 0){
-						line.setDirection(1, 0);
-					}else if(line.getXVelocity() != 0){
-						line.setDirection(0, -1);
-					}
-				}
-			}
-			
-		}else if(event.getAction() == MotionEvent.ACTION_DOWN ||
+		if(event.getAction() == MotionEvent.ACTION_DOWN ||
 			event.getAction() == MotionEvent.ACTION_MOVE){
 			touchX = (int) event.getX();
 			touchY = (int) event.getY();
@@ -214,6 +215,23 @@ public class GameThread extends Thread implements SensorEventListener{
 					i--;
 				}
 			}drawCall(gameCanvas);
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		if(v == rightButton){
+			if(line.getYVelocity() != 0){
+				line.setDirection(1, 0);
+			}else if(line.getXVelocity() != 0){
+				line.setDirection(0, -1);
+			}
+		}else if(v == leftButton){
+			if(line.getYVelocity() != 0){
+				line.setDirection(-1, 0);
+			}else if(line.getXVelocity() != 0){
+				line.setDirection(0, 1);
+			}
 		}
 	}
 }

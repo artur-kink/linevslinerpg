@@ -9,18 +9,21 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 /**
  * The main activity.
  */
 public class MainActivity extends Activity {
 	private GameSurface surface;
+	
+	public static Context context;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		context = this;
 		
 		//Remove title.
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -34,8 +37,9 @@ public class MainActivity extends Activity {
 		baseLayout.addView(surface);
 		
 		//Create ui layout and add it above the game surface.
-		LinearLayout uiLayout = new LinearLayout(this);
+		AbsoluteLayout uiLayout = new AbsoluteLayout(this);
 		baseLayout.addView(uiLayout);
+		surface.thread.uiLayout = uiLayout;
 		
 		setContentView(baseLayout);
 		

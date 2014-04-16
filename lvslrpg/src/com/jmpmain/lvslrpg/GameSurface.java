@@ -79,14 +79,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		}
 		canvas.drawBitmap(thread.map.lineCanvas.bitmap, getMatrix(), paint);
 		
-		//Draw turn buttons.
-		paint.setARGB(128,  255, 255,  255);
-		int radius = (int)((float)this.getWidth()*0.05);
-		//Draw buttons.
-		canvas.drawCircle(radius + 20, this.getHeight() - (radius + 20), radius, paint);
-		canvas.drawCircle(this.getWidth() - (radius + 20), this.getHeight() - (radius + 20), radius, paint);
-		
-		
 		//Debug draw.
 		if(BuildConfig.DEBUG){
 			
