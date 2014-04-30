@@ -2,6 +2,9 @@ package com.jmpmain.lvslrpg;
 
 import java.util.Vector;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.jmpmain.lvslrpg.entities.LineEntity;
 
 import android.annotation.SuppressLint;
@@ -51,6 +54,7 @@ public class GameThread extends Thread
 	
 	private Button leftButton;
 	private Button rightButton;
+	private Button resetButton;
 	
 	/**
 	 * Thread running state.
@@ -66,7 +70,10 @@ public class GameThread extends Thread
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
 
-	
+	/**
+	 * View for ads.
+	 */
+	private AdView adView;
 	
 	public GameThread(SurfaceHolder holder, GameSurface surface){
 		surfaceHolder = holder;
@@ -76,16 +83,26 @@ public class GameThread extends Thread
 		ups = 0;
 		lastUpdateCallReset = 0;
 		
+		// Create an ad.
+	    adView = new AdView(surface.getContext());
+	    adView.setAdSize(AdSize.BANNER);
+	    adView.setAdUnitId(surface.getContext().getResources().getString(R.string.AdId));
+	    
+	    // Create an ad request. Check logcat output for the hashed device ID to
+	    // get test ads on a physical device.
+	    AdRequest adRequest = new AdRequest.Builder()
+	        .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+	        .build();
+
+	    if(adRequest != null){
+	    	// Start loading the ad in the background.
+	    	adView.loadAd(adRequest);
+	    }
+		
 		setRunning(false);
 	}
 	
-	/**
-	 * Called when the game can be initialized.
-	 * This means the graphics and application has been setup
-	 * and ready to be used.
-	 */
-	public void initGame(){
-		
+	public void resetGame(){
 		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 12);
 		
 		line = new LineEntity(500/12, 500/12);
@@ -121,6 +138,16 @@ public class GameThread extends Thread
 			enemy.setMap(map);
 			enemies.add(enemy);
 		}
+	}
+	
+	/**
+	 * Called when the game can be initialized.
+	 * This means the graphics and application has been setup
+	 * and ready to be used.
+	 */
+	public void initGame(){
+		
+		resetGame();
 		
 		leftButton = new Button(MainActivity.context);
 		leftButton.setOnClickListener(this);
@@ -133,6 +160,20 @@ public class GameThread extends Thread
 		uiLayout.addView(rightButton,
 			new AbsoluteLayout.LayoutParams(100, 100,
 				gameSurface.getWidth() - 100, gameSurface.getHeight() - 100));
+		
+		resetButton = new Button(MainActivity.context);
+		resetButton.setOnClickListener(this);
+		uiLayout.addView(resetButton,
+			new AbsoluteLayout.LayoutParams(100, 100,
+				10, 10));
+		
+		rightButton = new Button(MainActivity.context);
+		rightButton.setOnClickListener(this);
+		uiLayout.addView(rightButton,
+			new AbsoluteLayout.LayoutParams(100, 100,
+				gameSurface.getWidth() - 100, gameSurface.getHeight() - 100));
+		
+		uiLayout.addView(adView);
 		
 	}
 	
@@ -232,6 +273,8 @@ public class GameThread extends Thread
 			}else if(line.getXVelocity() != 0){
 				line.setDirection(0, 1);
 			}
+		}else if(v == resetButton){
+			resetGame();
 		}
 	}
 }

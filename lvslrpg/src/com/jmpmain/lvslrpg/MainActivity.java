@@ -1,5 +1,7 @@
 package com.jmpmain.lvslrpg;
 
+import com.google.android.gms.ads.*;
+
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -30,16 +32,17 @@ public class MainActivity extends Activity {
 		//Set as full screen and set main view to GameSurface.
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		surface = new GameSurface(this);
+		
 		
 		//Create frame layout to contain game surface and ui layout.
 		FrameLayout baseLayout = new FrameLayout(this);
-		baseLayout.addView(surface);
-		
-		//Create ui layout and add it above the game surface.
+		//Create ui layout.
 		AbsoluteLayout uiLayout = new AbsoluteLayout(this);
-		baseLayout.addView(uiLayout);
+		
+		surface = new GameSurface(this);
 		surface.thread.uiLayout = uiLayout;
+		baseLayout.addView(surface);
+		baseLayout.addView(uiLayout);
 		
 		setContentView(baseLayout);
 		
