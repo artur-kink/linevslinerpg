@@ -2,7 +2,6 @@ package com.jmpmain.lvslrpg.entities;
 
 import com.jmpmain.lvslrpg.Map;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 

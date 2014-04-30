@@ -35,22 +35,28 @@ public class GameThread extends Thread
 	/** Last time fps second had elapsed. */
 	private long lastUpdateCallReset;
 	
-	/**
-	 * Last time game was updated.
-	 */
+	/** Last time game was updated. */
 	private long lastUpdate;
 	
-	/**
-	 * GameSurface Surface Holder.
-	 */
+	/** GameSurface Surface Holder. */
 	private SurfaceHolder surfaceHolder;
 	
-	/**
-	 * Main surface game is drawn to.
-	 */
+	/** Main surface game is drawn to. */
 	private GameSurface gameSurface;
 	
+	/** Layout for UI elements. Above the game surface. */
 	public AbsoluteLayout uiLayout;
+	
+	/** List of screen types. */
+	public enum Screen{
+		START,
+		BATTLE
+	}
+	
+	/** Current screen of game. */
+	public Screen currentScreen;
+	
+	private Button startButton;
 	
 	private Button leftButton;
 	private Button rightButton;
@@ -63,16 +69,14 @@ public class GameThread extends Thread
 	
 	public int touchX;
 	public int touchY;
-	
+
 	/** Current game map. */
 	public Map map;
 	
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
 
-	/**
-	 * View for ads.
-	 */
+	/** View for ads. */
 	private AdView adView;
 	
 	public GameThread(SurfaceHolder holder, GameSurface surface){
@@ -83,26 +87,44 @@ public class GameThread extends Thread
 		ups = 0;
 		lastUpdateCallReset = 0;
 		
-		// Create an ad.
-	    adView = new AdView(surface.getContext());
+		//Create UI elements.
+		startButton = new Button(MainActivity.context);
+		startButton.setOnClickListener(this);
+		
+		leftButton = new Button(MainActivity.context);
+		leftButton.setOnClickListener(this);
+		
+		rightButton = new Button(MainActivity.context);
+		rightButton.setOnClickListener(this);
+		
+		resetButton = new Button(MainActivity.context);
+		resetButton.setOnClickListener(this);
+		
+		rightButton = new Button(MainActivity.context);
+		rightButton.setOnClickListener(this);
+		
+		//Create the ad
+	    adView = new AdView(MainActivity.context);
 	    adView.setAdSize(AdSize.BANNER);
-	    adView.setAdUnitId(surface.getContext().getResources().getString(R.string.AdId));
+	    adView.setAdUnitId(MainActivity.context.getResources().getString(R.string.AdId));
 	    
-	    // Create an ad request. Check logcat output for the hashed device ID to
-	    // get test ads on a physical device.
-	    AdRequest adRequest = new AdRequest.Builder()
-	        .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-	        .build();
+	    AdRequest.Builder adBuilder = new AdRequest.Builder()
+	        .addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+	    for(int i = 0; i < MainActivity.context.getResources().getStringArray(R.array.TestDevices).length; i++){
+	    	adBuilder.addTestDevice(MainActivity.context.getResources().getStringArray(R.array.TestDevices)[i]);
+	    }
+	    AdRequest adRequest = adBuilder.build();
 
+	    //Load ad
 	    if(adRequest != null){
-	    	// Start loading the ad in the background.
 	    	adView.loadAd(adRequest);
 	    }
-		
+	    
 		setRunning(false);
 	}
 	
 	public void resetGame(){
+		
 		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 12);
 		
 		line = new LineEntity(500/12, 500/12);
@@ -131,13 +153,6 @@ public class GameThread extends Thread
 			enemy.setMap(map);
 			enemies.add(enemy);
 		}
-		
-		{
-			LineEntity enemy = new LineEntity(1000/12, 500/12);
-			enemy.setColor(128, 255, 0, 0);
-			enemy.setMap(map);
-			enemies.add(enemy);
-		}
 	}
 	
 	/**
@@ -146,35 +161,38 @@ public class GameThread extends Thread
 	 * and ready to be used.
 	 */
 	public void initGame(){
-		
 		resetGame();
 		
-		leftButton = new Button(MainActivity.context);
-		leftButton.setOnClickListener(this);
-		uiLayout.addView(leftButton,
-			new AbsoluteLayout.LayoutParams(100, 100,
-				0, gameSurface.getHeight() - 100));
+		setScreen(Screen.START);
+	}
+	
+	/**
+	 * Change screens.
+	 * @param screen Screen to change to.
+	 */
+	public void setScreen(Screen screen){
+		currentScreen = screen;
+		uiLayout.removeAllViews();
 		
-		rightButton = new Button(MainActivity.context);
-		rightButton.setOnClickListener(this);
-		uiLayout.addView(rightButton,
-			new AbsoluteLayout.LayoutParams(100, 100,
-				gameSurface.getWidth() - 100, gameSurface.getHeight() - 100));
-		
-		resetButton = new Button(MainActivity.context);
-		resetButton.setOnClickListener(this);
-		uiLayout.addView(resetButton,
-			new AbsoluteLayout.LayoutParams(100, 100,
-				10, 10));
-		
-		rightButton = new Button(MainActivity.context);
-		rightButton.setOnClickListener(this);
-		uiLayout.addView(rightButton,
-			new AbsoluteLayout.LayoutParams(100, 100,
-				gameSurface.getWidth() - 100, gameSurface.getHeight() - 100));
-		
-		uiLayout.addView(adView);
-		
+		if(currentScreen == Screen.START){
+			uiLayout.addView(adView);
+			uiLayout.addView(startButton,
+					new AbsoluteLayout.LayoutParams(100, 100,
+						100, 100));
+		}
+		else if(currentScreen == Screen.BATTLE){
+			uiLayout.addView(resetButton,
+					new AbsoluteLayout.LayoutParams(100, 100,
+						10, 10));
+			
+			uiLayout.addView(rightButton,
+				new AbsoluteLayout.LayoutParams(100, 100,
+					gameSurface.getWidth() - 100, gameSurface.getHeight() - 100));
+			
+			uiLayout.addView(leftButton,
+					new AbsoluteLayout.LayoutParams(100, 100,
+						0, gameSurface.getHeight() - 100));
+		}
 	}
 	
 	/**
@@ -197,14 +215,10 @@ public class GameThread extends Thread
 	}
 	
 	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Handle sensor accuracy change.	
-	}
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// TODO Handle sensor value changes.
-	}
+	public void onSensorChanged(SensorEvent event) {}
 	
 	@SuppressLint("WrongCall")
 	private void drawCall(Canvas gameCanvas){
@@ -228,53 +242,63 @@ public class GameThread extends Thread
 		//Game loop.
 		while (running) {
 			
-			//Check if game state should be updated.
-			if(System.currentTimeMillis() - lastUpdate < 25){
+			if(currentScreen == Screen.BATTLE){
+				//Check if game state should be updated.
+				if(System.currentTimeMillis() - lastUpdate < 25){
+					drawCall(gameCanvas);
+					continue;
+				}
+				lastUpdate = System.currentTimeMillis();
+				
+				long currentTimeMillis = System.currentTimeMillis();
+				
+				//Update debug parameters.
+				if(BuildConfig.DEBUG){				
+					updateCallCount++;
+					if(System.currentTimeMillis() - lastUpdateCallReset > 1000){
+						lastUpdateCallReset = System.currentTimeMillis();
+						ups = updateCallCount;
+						updateCallCount = 0;
+					}
+				}
+				
+				line.update(currentTimeMillis);
+				for(int i = 0; i < enemies.size(); i++){
+					enemies.get(i).setTarget(line.getX(), line.getY());
+					enemies.get(i).update(currentTimeMillis);
+					if(enemies.get(i).dead){
+						enemies.remove(i);
+						i--;
+					}
+				}
 				drawCall(gameCanvas);
-				continue;
 			}
-			lastUpdate = System.currentTimeMillis();
-			
-			long currentTimeMillis = System.currentTimeMillis();
-			
-			//Update debug parameters.
-			if(BuildConfig.DEBUG){				
-				updateCallCount++;
-				if(System.currentTimeMillis() - lastUpdateCallReset > 1000){
-					lastUpdateCallReset = System.currentTimeMillis();
-					ups = updateCallCount;
-					updateCallCount = 0;
-				}
-			}
-			
-			line.update(currentTimeMillis);
-			for(int i = 0; i < enemies.size(); i++){
-				enemies.get(i).setTarget(line.getX(), line.getY());
-				enemies.get(i).update(currentTimeMillis);
-				if(enemies.get(i).dead){
-					enemies.remove(i);
-					i--;
-				}
-			}drawCall(gameCanvas);
 		}
 	}
 
 	@Override
 	public void onClick(View v) {
-		if(v == rightButton){
-			if(line.getYVelocity() != 0){
-				line.setDirection(1, 0);
-			}else if(line.getXVelocity() != 0){
-				line.setDirection(0, -1);
+		if(currentScreen == Screen.START){
+			if(v == startButton){
+				setScreen(Screen.BATTLE);
 			}
-		}else if(v == leftButton){
-			if(line.getYVelocity() != 0){
-				line.setDirection(-1, 0);
-			}else if(line.getXVelocity() != 0){
-				line.setDirection(0, 1);
+		}
+		if(currentScreen == Screen.BATTLE){
+			if(v == rightButton){
+				if(line.getYVelocity() != 0){
+					line.setDirection(1, 0);
+				}else if(line.getXVelocity() != 0){
+					line.setDirection(0, -1);
+				}
+			}else if(v == leftButton){
+				if(line.getYVelocity() != 0){
+					line.setDirection(-1, 0);
+				}else if(line.getXVelocity() != 0){
+					line.setDirection(0, 1);
+				}
+			}else if(v == resetButton){
+				resetGame();
 			}
-		}else if(v == resetButton){
-			resetGame();
 		}
 	}
 }
