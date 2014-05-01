@@ -11,14 +11,14 @@ import android.graphics.Paint;
 public class LineEntity extends Entity {
 
 	/** X position. */
-	private float x;
+	protected float x;
 	/** Y position. */
-	private float y;
+	protected float y;
 	
 	/** Last x position where map collision was checked. */
-	private int lastXCheck;
+	protected int lastXCheck;
 	/** Last y position where map collision was checked. */
-	private int lastYCheck;
+	protected int lastYCheck;
 	
 	public float getX() {
 		return x;
@@ -41,14 +41,14 @@ public class LineEntity extends Entity {
 	public float velocity;
 	
 	/** Horizontal velocity. */
-	private float xVelocity;
+	protected float xVelocity;
 	
 	public float getXVelocity(){
 		return xVelocity;
 	}
 	
 	/** Vertical velocity. */
-	private float yVelocity;
+	protected float yVelocity;
 	
 	public float getYVelocity(){
 		return yVelocity;
@@ -60,7 +60,8 @@ public class LineEntity extends Entity {
 	private int lastYDraw;
 	
 	/** Map where line entity exists. */
-	private Map map;
+	protected Map map;
+	
 	public void setMap(Map m){
 		map = m;
 	}
@@ -141,9 +142,9 @@ public class LineEntity extends Entity {
 	 * @param y2 Y Position.
 	 * @return True if map is empty at given point, else false.
 	 */
-	private boolean isEmpty(float x2, float y2){
+	protected boolean isEmpty(float x2, float y2){
 		//Check for out of bounds.
-		if(x < 0 || y < 0 || x >= map.width || y >= map.height)
+		if(x2 < 0 || y2 < 0 || x2 >= map.width || y2 >= map.height)
 			return false;
 		
 		//Check if pixel clear.

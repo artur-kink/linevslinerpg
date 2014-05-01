@@ -52,14 +52,15 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 
 	@Override
 	public void surfaceCreated(SurfaceHolder arg0) {
-		thread.initGame();
-		thread.setRunning(true);
-		thread.start();
+		if(!thread.isAlive()){
+			thread.initGame();
+			thread.setRunning(true);
+			thread.start();
+		}
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder arg0) {
-		thread.setRunning(false);
 	}
 	
 	@Override

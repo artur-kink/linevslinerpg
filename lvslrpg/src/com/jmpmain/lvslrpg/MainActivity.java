@@ -18,7 +18,9 @@ import android.widget.FrameLayout;
  * The main activity.
  */
 public class MainActivity extends Activity {
+	
 	private GameSurface surface;
+	private GameThread thread;
 	
 	public static Context context;
 	
@@ -39,12 +41,15 @@ public class MainActivity extends Activity {
 		//Create ui layout.
 		AbsoluteLayout uiLayout = new AbsoluteLayout(this);
 		
+
 		surface = new GameSurface(this);
-		surface.thread.uiLayout = uiLayout;
+		thread = surface.thread;
 		baseLayout.addView(surface);
 		baseLayout.addView(uiLayout);
 		
 		setContentView(baseLayout);
+		
+		thread.uiLayout = uiLayout;
 		
 		//Register accelerator to record tilt of screen.
 		((SensorManager)getSystemService(Context.SENSOR_SERVICE)).registerListener(
@@ -52,6 +57,16 @@ public class MainActivity extends Activity {
 			.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0), SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
+	@Override
+	public void onPause(){
+		super.onPause();
+	}
+	
+	@Override
+	public void onResume(){
+		super.onResume();
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 	    surface.thread.onTouchEvent(event);

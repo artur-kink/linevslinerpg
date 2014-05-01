@@ -5,7 +5,8 @@ import java.util.Vector;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.jmpmain.lvslrpg.entities.LineEntity;
+
+import com.jmpmain.lvslrpg.entities.*;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
@@ -62,10 +63,8 @@ public class GameThread extends Thread
 	private Button rightButton;
 	private Button resetButton;
 	
-	/**
-	 * Thread running state.
-	 */
-	private boolean running;
+	/** Thread running state. */
+	public boolean running;
 	
 	public int touchX;
 	public int touchY;
@@ -80,8 +79,8 @@ public class GameThread extends Thread
 	private AdView adView;
 	
 	public GameThread(SurfaceHolder holder, GameSurface surface){
-		surfaceHolder = holder;
 		gameSurface = surface;
+		surfaceHolder = holder; 
 		
 		updateCallCount = 0;
 		ups = 0;
@@ -90,6 +89,7 @@ public class GameThread extends Thread
 		//Create UI elements.
 		startButton = new Button(MainActivity.context);
 		startButton.setOnClickListener(this);
+		startButton.setText("Start");
 		
 		leftButton = new Button(MainActivity.context);
 		leftButton.setOnClickListener(this);
@@ -134,21 +134,21 @@ public class GameThread extends Thread
 		
 		enemies = new Vector<LineEntity>();
 		{
-			LineEntity enemy = new LineEntity(10/12, 500/12);
+			LineEntity enemy = new AILineEntity(10/12, 500/12);
 			enemy.setColor(128, 255, 255, 0);
 			enemy.setMap(map);
 			enemies.add(enemy);
 		}
 		
 		{
-			LineEntity enemy = new LineEntity(500/12, 10/12);
+			LineEntity enemy = new AILineEntity(500/12, 10/12);
 			enemy.setColor(128, 0, 255, 255);
 			enemy.setMap(map);
 			enemies.add(enemy);
 		}
 		
 		{
-			LineEntity enemy = new LineEntity(500/12, 1500/12);
+			LineEntity enemy = new AILineEntity(500/12, 1500/12);
 			enemy.setColor(128, 0, 0, 255);
 			enemy.setMap(map);
 			enemies.add(enemy);
@@ -172,27 +172,32 @@ public class GameThread extends Thread
 	 */
 	public void setScreen(Screen screen){
 		currentScreen = screen;
-		uiLayout.removeAllViews();
 		
-		if(currentScreen == Screen.START){
-			uiLayout.addView(adView);
-			uiLayout.addView(startButton,
-					new AbsoluteLayout.LayoutParams(100, 100,
-						100, 100));
-		}
-		else if(currentScreen == Screen.BATTLE){
-			uiLayout.addView(resetButton,
-					new AbsoluteLayout.LayoutParams(100, 100,
-						10, 10));
-			
-			uiLayout.addView(rightButton,
-				new AbsoluteLayout.LayoutParams(100, 100,
-					gameSurface.getWidth() - 100, gameSurface.getHeight() - 100));
-			
-			uiLayout.addView(leftButton,
-					new AbsoluteLayout.LayoutParams(100, 100,
-						0, gameSurface.getHeight() - 100));
-		}
+		//Make sure running on UI thread.
+		((MainActivity)MainActivity.context).runOnUiThread(new Runnable() {
+		     @Override
+		     public void run() {
+		    	 uiLayout.removeAllViews();
+		 		
+		 		if(currentScreen == Screen.START){
+		 			uiLayout.addView(adView);
+		 			uiLayout.addView(startButton);
+		 		}
+		 		else if(currentScreen == Screen.BATTLE){
+		 			uiLayout.addView(resetButton,
+		 					new AbsoluteLayout.LayoutParams(100, 100,
+		 						10, 10));
+		 			
+		 			uiLayout.addView(rightButton,
+		 				new AbsoluteLayout.LayoutParams(100, 100,
+		 					gameSurface.getWidth() - 100, gameSurface.getHeight() - 100));
+		 			
+		 			uiLayout.addView(leftButton,
+		 					new AbsoluteLayout.LayoutParams(100, 100,
+		 						0, gameSurface.getHeight() - 100));
+		 		}
+		    }
+		});
 	}
 	
 	/**
@@ -264,13 +269,17 @@ public class GameThread extends Thread
 				
 				line.update(currentTimeMillis);
 				for(int i = 0; i < enemies.size(); i++){
-					enemies.get(i).setTarget(line.getX(), line.getY());
 					enemies.get(i).update(currentTimeMillis);
 					if(enemies.get(i).dead){
 						enemies.remove(i);
 						i--;
 					}
 				}
+				
+				if(line.health <= 0){
+					setScreen(Screen.START);
+				}
+				
 				drawCall(gameCanvas);
 			}
 		}
@@ -280,6 +289,7 @@ public class GameThread extends Thread
 	public void onClick(View v) {
 		if(currentScreen == Screen.START){
 			if(v == startButton){
+				initGame();
 				setScreen(Screen.BATTLE);
 			}
 		}
