@@ -1,8 +1,11 @@
 package com.jmpmain.lvslrpg;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -29,6 +32,8 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	/** Application Context. */
 	private Context context;
 	
+	public static Bitmap character;
+	
 	public GameSurface(Context context) {
 		super(context);
 		this.context = context;
@@ -43,6 +48,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		fps = 0;
 		
 		paint = new Paint();
+		
+		character = BitmapFactory.decodeResource(getResources(), R.drawable.c1);
+		
 		setFocusable(true);
 	}
 
@@ -74,11 +82,18 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawPaint(paint);
 		
 		//Draw line canvas.
-		thread.line.draw(thread.map.lineCanvas);
+		thread.line.drawBackground(thread.map.lineCanvas);
+		
 		for(int i = 0; i < thread.enemies.size(); i++){
-			thread.enemies.get(i).draw(thread.map.lineCanvas);
+			thread.enemies.get(i).drawBackground(thread.map.lineCanvas);
 		}
 		canvas.drawBitmap(thread.map.lineCanvas.bitmap, getMatrix(), paint);
+		
+		thread.line.draw(canvas);
+		
+		for(int i = 0; i < thread.enemies.size(); i++){
+			thread.enemies.get(i).draw(canvas);
+		}
 		
 		//Debug draw.
 		if(BuildConfig.DEBUG){

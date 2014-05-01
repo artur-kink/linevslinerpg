@@ -1,9 +1,11 @@
 package com.jmpmain.lvslrpg.entities;
 
+import com.jmpmain.lvslrpg.GameSurface;
 import com.jmpmain.lvslrpg.Map;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 
 /**
  * A line entity in line vs line fights.
@@ -153,6 +155,15 @@ public class LineEntity extends Entity {
 	
 	@Override
 	public void draw(Canvas canvas) {
+		Paint p = new Paint();
+		canvas.drawBitmap(GameSurface.character, new Rect(0, 0, 42, 42),
+				new Rect((int)x*map.tileSize - 12, (int)y*map.tileSize- 12, 
+						(int)x*map.tileSize- 12 + 42, (int)y*map.tileSize- 12 + 42), p);
+		
+	}
+	
+	@Override
+	public void drawBackground(Canvas canvas) {
 		//Fill tile player is in.
 		if(lastXDraw != (int)x || lastYDraw != (int)y){
 			paint.setStrokeWidth(1);
