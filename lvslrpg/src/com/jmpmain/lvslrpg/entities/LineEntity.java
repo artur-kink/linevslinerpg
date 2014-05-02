@@ -72,6 +72,9 @@ public class LineEntity extends Entity {
 	public int maxHealth;
 	public boolean dead;
 	
+	protected long lastFrameUpdate;
+	protected int frame;
+	
 	/** Paint used to draw line. */
 	private Paint paint;
 	
@@ -96,6 +99,9 @@ public class LineEntity extends Entity {
 	public void setDirection(float x, float y){
 		xVelocity = x*velocity;
 		yVelocity = y*velocity;
+		
+		x = lastXCheck;
+		y = lastYCheck;
 	}
 	
 	public void setTarget(float tX, float tY){
@@ -115,6 +121,14 @@ public class LineEntity extends Entity {
 	
 	@Override
 	public void update(long time) {
+		
+		if(time - lastFrameUpdate > 100){
+			frame++;
+			if(frame > 1){
+				frame = 0;
+			}
+			lastFrameUpdate = time;
+		}
 		
 		//Update entity position.
 		x += xVelocity;
@@ -156,13 +170,23 @@ public class LineEntity extends Entity {
 	@Override
 	public void draw(Canvas canvas) {
 		Paint p = new Paint();
-		canvas.drawBitmap(GameSurface.character, new Rect(0, 0, 42, 42),
-				new Rect((int)x*map.tileSize - 12, (int)y*map.tileSize- 12, 
-						(int)x*map.tileSize- 12 + 42, (int)y*map.tileSize- 12 + 42), p);
 		
+		//Draw sprite.
+		canvas.drawBitmap(GameSurface.character, new Rect(frame*42, 0, frame*42 + 42, 42),
+				new Rect((int)(x*map.tileSize) - 12, (int)(y*map.tileSize) - 12, 
+						(int)(x*map.tileSize)- 12 + 42, (int)(y*map.tileSize) - 12 + 42), p);
+		
+		//Draw health bar.
+		p.setARGB(64, 255, 0, 0);
+		//Health bar background.
+		canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 18,
+				(int)(x*map.tileSize) + 32, (int)(y*map.tileSize) - 12), p);
+		
+		//Foreground actual health.
+		canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 18,
+				(int)(x*map.tileSize) + (int)(32*((float)health/(float)maxHealth)), (int)(y*map.tileSize) - 12), p);
 	}
 	
-	@Override
 	public void drawBackground(Canvas canvas) {
 		//Fill tile player is in.
 		if(lastXDraw != (int)x || lastYDraw != (int)y){

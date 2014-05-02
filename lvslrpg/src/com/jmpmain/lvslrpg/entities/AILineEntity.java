@@ -16,9 +16,15 @@ public class AILineEntity extends LineEntity {
 		if(lastXCheck != (int)tx || lastYCheck != (int)ty){
 			if(!isEmpty(tx, ty)){
 				if(xVelocity > 0){
-					setDirection(0, (float) ((int)Math.random()*2 - 1));
+					if(Math.random() > 0.5)
+						setDirection(0, 1);
+					else
+						setDirection(0, -1);
 				}else{
-					setDirection((float) ((int)Math.random()*2 - 1), 0);
+					if(Math.random() > 0.5)
+						setDirection(1, 0);
+					else
+						setDirection(-1, 0);
 				}
 			}
 		}

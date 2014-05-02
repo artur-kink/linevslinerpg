@@ -74,7 +74,8 @@ public class GameThread extends Thread
 	
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
-
+	public Vector<Item> items;
+	
 	/** View for ads. */
 	private AdView adView;
 	
@@ -127,7 +128,7 @@ public class GameThread extends Thread
 		
 		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 12);
 		
-		line = new LineEntity(500/12, 500/12);
+		line = new PlayerLineEntity(500/12, 500/12);
 		line.setDirection(1, 0);
 		line.setColor(128, 0, 255, 0);
 		line.setMap(map);
@@ -153,6 +154,14 @@ public class GameThread extends Thread
 			enemy.setMap(map);
 			enemies.add(enemy);
 		}
+		
+		items = new Vector<Item>();
+		for(int i = 0; i < 10; i++){
+			int x = (int)(Math.random()*900);
+			int y = (int)(Math.random()*1200);
+			items.add(new Item(x/12, y/12, x, y));
+		}
+		
 	}
 	
 	/**
@@ -268,6 +277,14 @@ public class GameThread extends Thread
 				}
 				
 				line.update(currentTimeMillis);
+				
+				for(int i = 0; i < items.size(); i++){
+					if(items.get(i).tileX == (int)line.getX() && items.get(i).tileY == (int)line.getY()){
+						items.remove(i);
+						i--;
+					}
+				}
+				
 				for(int i = 0; i < enemies.size(); i++){
 					enemies.get(i).update(currentTimeMillis);
 					if(enemies.get(i).dead){
@@ -275,6 +292,8 @@ public class GameThread extends Thread
 						i--;
 					}
 				}
+				
+				
 				
 				if(line.health <= 0){
 					setScreen(Screen.START);

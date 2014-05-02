@@ -6,6 +6,5 @@ public abstract class Entity {
 	public abstract void update(long time);
 	
 	public abstract void draw(Canvas canvas);
-	public abstract void drawBackground(Canvas canvas);
 	
 }

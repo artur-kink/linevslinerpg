@@ -1,5 +1,9 @@
 package com.jmpmain.lvslrpg;
 
+import java.util.Vector;
+
+import com.jmpmain.lvslrpg.entities.Item;
+
 public class Map {
 
 	public enum TileType{

@@ -33,6 +33,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	private Context context;
 	
 	public static Bitmap character;
+	public static Bitmap coin;
 	
 	public GameSurface(Context context) {
 		super(context);
@@ -50,6 +51,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		paint = new Paint();
 		
 		character = BitmapFactory.decodeResource(getResources(), R.drawable.c1);
+		coin = BitmapFactory.decodeResource(getResources(), R.drawable.coin);
 		
 		setFocusable(true);
 	}
@@ -93,6 +95,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		
 		for(int i = 0; i < thread.enemies.size(); i++){
 			thread.enemies.get(i).draw(canvas);
+		}
+		
+		for(int i = 0; i < thread.items.size(); i++){
+			thread.items.get(i).draw(canvas);
 		}
 		
 		//Debug draw.
