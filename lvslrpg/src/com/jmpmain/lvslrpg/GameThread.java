@@ -8,6 +8,7 @@ import com.google.android.gms.ads.AdView;
 
 import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.entities.*;
+import com.jmpmain.lvslrpg.entities.Item.ItemType;
 import com.jmpmain.lvslrpg.particles.Particle;
 
 import android.annotation.SuppressLint;
@@ -150,16 +151,30 @@ public class GameThread extends Thread
 		setRunning(false);
 	}
 	
+	/**
+	 * Starts a brand new game.
+	 */
 	public void resetGame(){
+		
+		line = new PlayerLineEntity(0, 0);
+		line.setColor(128, 0, 255, 0);
+		
+		setTurnButtons();
+		
+		newLevel();
+	}
+	
+	/**
+	 * Creates new level.
+	 */
+	public void newLevel(){
 		
 		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 14);
 		
-		line = new PlayerLineEntity(map.playerStart.x, map.playerStart.y);
-		line.setDirection(0, -1);
-		line.setColor(128, 0, 255, 0);
 		line.setMap(map);
-		
-		setTurnButtons();
+		line.setDirection(0, -1);
+		line.setX(map.playerStart.x);
+		line.setY(map.playerStart.y);
 		
 		enemies = new Vector<LineEntity>();
 		
@@ -174,7 +189,10 @@ public class GameThread extends Thread
 		for(int i = 0; i < 10; i++){
 			int x = (int)(Math.random()*map.width*map.tileSize);
 			int y = (int)(Math.random()*map.height*map.tileSize);
-			items.add(new Item(x, y));
+			if(Math.random() > 0.5)
+				items.add(new Item(ItemType.Coin, x, y));
+			else
+				items.add(new Item(ItemType.Potion, x, y));
 		}
 		
 	}
@@ -186,7 +204,6 @@ public class GameThread extends Thread
 	 */
 	public void initGame(){
 		resetGame();
-		
 		setScreen(Screen.START);
 	}
 	
@@ -319,6 +336,11 @@ public class GameThread extends Thread
 				for(int i = 0; i < items.size(); i++){
 					if(new Rect((int)line.getX()*map.tileSize - 16, (int)line.getY()*map.tileSize- 16, (int)line.getX()*map.tileSize+16, (int)line.getY()*map.tileSize+16).intersect(
 							new Rect(items.get(i).x, items.get(i).y, items.get(i).x + items.get(i).width, items.get(i).y + items.get(i).height))){
+						
+						if(items.get(i).type == ItemType.Potion){
+							line.addHealth(5);
+						}
+						
 						items.remove(i);
 						i--;
 					}
@@ -367,13 +389,13 @@ public class GameThread extends Thread
 	public void onClick(View v) {
 		if(currentScreen == Screen.START){
 			if(v == startButton){
-				initGame();
+				resetGame();
 				setScreen(Screen.BATTLE);
 			}
 		}
 		else if(currentScreen == Screen.MENU){
 			if(v == continueButton){
-				initGame();
+				newLevel();
 				setScreen(Screen.BATTLE);
 			}
 		}

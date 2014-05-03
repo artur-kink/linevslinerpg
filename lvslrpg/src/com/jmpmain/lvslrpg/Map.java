@@ -13,7 +13,8 @@ public class Map {
 		Entity,
 		Ground,
 		Water,
-		Sand
+		Sand,
+		Mountain
 	}
 	
 	/** Tile type array. The map array. */

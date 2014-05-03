@@ -14,7 +14,7 @@ public class MapGenerator {
 	/**
 	 * Get color of tile based on type.
 	 */
-	private static Paint GetTypeColor(Map.TileType type){
+	private static Paint GetTypeColor(TileType type){
 		Paint paint = new Paint();
 		
 		int r =  (int)((Math.random()-0.5f)*10);
@@ -23,10 +23,12 @@ public class MapGenerator {
 		
 		if(type == Map.TileType.Ground)
 			paint.setARGB(255, 25 + r, 200 + g, 25 + b);
-		else if(type == Map.TileType.Water)
+		else if(type == TileType.Water)
 			paint.setARGB(255, 25 + r, 25 + g, 200 + b);
-		else if(type == Map.TileType.Sand)
+		else if(type == TileType.Sand)
 			paint.setARGB(255, 200 + r, 200 + g, 20 + b);
+		else if(type == TileType.Mountain)
+			paint.setARGB(255, 128 + r, 128 + g, 128 + b);
 		
 		return paint;
 	}
@@ -42,15 +44,22 @@ public class MapGenerator {
 		Map map = new Map(width, height, tileSize);
 		
 		MapTheme theme = MapTheme.Temperate;
-		CreateGround(map, Map.TileType.Ground);
+		CreateGround(map, TileType.Ground);
 		
 		//Set city location.
 		map.city = new Point(width/2, 100);
 		
+		//Create mountains
 		for(int i = 0; i < Math.random()*5; i++){
-			CreatePatch(map, Map.TileType.Water, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+			CreatePatch(map, TileType.Mountain, 12, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
 		}
-		CreateBorder(map, Map.TileType.Water, Map.TileType.Sand, 3);
+		
+		//Create lakes
+		for(int i = 0; i < Math.random()*5; i++){
+			CreatePatch(map, TileType.Water, 7, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+		}
+		//Create beaches for lakes
+		CreateBorder(map, TileType.Water, TileType.Sand, 3);
 		
 		//Set player start
 		map.playerStart = new Point(map.width/2, map.height - 5);
@@ -127,11 +136,11 @@ public class MapGenerator {
 		
 	}
 	
-	private static void CreatePatch(Map map, Map.TileType type, int x, int y){
-		recursivePatch(map, type, x, y, 7);
+	private static void CreatePatch(Map map, TileType type, int size, int x, int y){
+		recursivePatch(map, type, x, y, size);
 	}
 	
-	private static void recursivePatch(Map map, Map.TileType type, int x, int y, int depth){
+	private static void recursivePatch(Map map, TileType type, int x, int y, int depth){
 		if(depth <= 0 || x >= map.width || x < 0 || y >= map.height || y < 0)
 			return;
 		

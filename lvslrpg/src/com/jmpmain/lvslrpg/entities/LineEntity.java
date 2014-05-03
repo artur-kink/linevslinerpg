@@ -122,6 +122,16 @@ public class LineEntity extends Entity {
 		}
 	}
 	
+	/**
+	 * Add health to player, caps at max health.
+	 * @param h Amount of health to add.
+	 */
+	public void addHealth(int h){
+		health += h;
+		if(health > maxHealth)
+			health = maxHealth;
+	}
+	
 	@Override
 	public void update(long time) {
 		
@@ -173,7 +183,8 @@ public class LineEntity extends Entity {
 			return false;
 		
 		//Check if pixel clear.
-		return map.getTile((int)x2, (int)y2) != Map.TileType.Entity;
+		TileType type = map.getTile((int)x2, (int)y2);
+		return type != TileType.Entity && type != TileType.Water;
 	}
 	
 	@Override
