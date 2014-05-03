@@ -8,18 +8,15 @@ import android.graphics.Rect;
 
 public class Item extends Entity {
 
-	public int tileX;
-	public int tileY;
+	public int x;
+	public int y;
 	
-	protected int drawX;
-	protected int drawY;
+	public int width;
+	public int height;
 	
-	public Item(int tx, int ty, int dx, int dy){
-		tileX = tx;
-		tileY = ty;
-		
-		drawX = dx;
-		drawY = dy;
+	public Item(int tx, int ty){
+		x = tx;
+		y = ty;
 	}
 	
 	@Override
@@ -32,7 +29,7 @@ public class Item extends Entity {
 		Paint p = new Paint();
 		//Draw coin.
 		canvas.drawBitmap(GameSurface.coin, new Rect(0, 0, 32, 32),
-				new Rect(drawX, drawY, drawX + 32, drawY + 32), p);
+				new Rect(x, y, x + 32, y + 32), p);
 		
 	}
 }

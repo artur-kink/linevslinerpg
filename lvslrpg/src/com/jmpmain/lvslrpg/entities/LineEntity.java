@@ -1,7 +1,10 @@
 package com.jmpmain.lvslrpg.entities;
 
 import com.jmpmain.lvslrpg.GameSurface;
+import com.jmpmain.lvslrpg.GameThread;
 import com.jmpmain.lvslrpg.Map;
+import com.jmpmain.lvslrpg.Map.TileType;
+import com.jmpmain.lvslrpg.particles.Blood;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -141,10 +144,14 @@ public class LineEntity extends Entity {
 			
 			if(!isEmpty(x, y)){
 				health--;
+				for(int i = 0; i < 5; i++){
+					GameThread.instance.particles.add(new Blood((int)x*map.tileSize, (int)y*map.tileSize, time));
+				}
 			}
 			
-			if(x >= 0 && y >= 0 && x < map.width && y < map.height)
-				map.setTile(lastXCheck, lastYCheck, Map.TileType.Entity);
+			if(x >= 0 && y >= 0 && x < map.width && y < map.height
+					&& map.getTile(lastXCheck, lastYCheck) != TileType.Exit)
+				map.setTile(lastXCheck, lastYCheck, TileType.Entity);
 			
 		}
 		if(health < 0){
@@ -173,18 +180,18 @@ public class LineEntity extends Entity {
 		
 		//Draw sprite.
 		canvas.drawBitmap(GameSurface.character, new Rect(frame*42, 0, frame*42 + 42, 42),
-				new Rect((int)(x*map.tileSize) - 12, (int)(y*map.tileSize) - 12, 
-						(int)(x*map.tileSize)- 12 + 42, (int)(y*map.tileSize) - 12 + 42), p);
+				new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 16, 
+						(int)(x*map.tileSize)- 16 + 42, (int)(y*map.tileSize) - 16 + 42), p);
 		
 		//Draw health bar.
 		p.setARGB(64, 255, 0, 0);
 		//Health bar background.
-		canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 18,
-				(int)(x*map.tileSize) + 32, (int)(y*map.tileSize) - 12), p);
+		canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 24,
+				(int)(x*map.tileSize) + 32, (int)(y*map.tileSize) - 16), p);
 		
 		//Foreground actual health.
-		canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 18,
-				(int)(x*map.tileSize) + (int)(32*((float)health/(float)maxHealth)), (int)(y*map.tileSize) - 12), p);
+		canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 24,
+				(int)(x*map.tileSize) + (int)(32*((float)health/(float)maxHealth)), (int)(y*map.tileSize) - 16), p);
 	}
 	
 	public void drawBackground(Canvas canvas) {

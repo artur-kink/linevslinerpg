@@ -2,6 +2,8 @@ package com.jmpmain.lvslrpg;
 
 import java.util.Vector;
 
+import android.graphics.Point;
+
 import com.jmpmain.lvslrpg.entities.Item;
 
 public class Map {
@@ -9,6 +11,7 @@ public class Map {
 	public enum TileType{
 		Empty,
 		Entity,
+		Exit,
 		Ground,
 		Water,
 		Sand
@@ -24,6 +27,10 @@ public class Map {
 	
 	public int tileSize;
 	
+	public Point playerStart;
+	
+	public Vector<Point> enemyStarts;
+	
 	/** LineCanvas where line vs line battles are rendered. */
 	public LineCanvas lineCanvas;
 	
@@ -31,6 +38,8 @@ public class Map {
 		tileSize = t;
 
 		lineCanvas = new LineCanvas(w, h);
+		
+		enemyStarts = new Vector<Point>();
 		
 		width = w/t;
 		height = h/t;

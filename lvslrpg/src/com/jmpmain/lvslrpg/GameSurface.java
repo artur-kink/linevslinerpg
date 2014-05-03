@@ -101,6 +101,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 			thread.items.get(i).draw(canvas);
 		}
 		
+		for(int i = 0; i < thread.particles.size(); i++){
+			thread.particles.get(i).draw(canvas);
+		}
+		
 		//Debug draw.
 		if(BuildConfig.DEBUG){
 			
