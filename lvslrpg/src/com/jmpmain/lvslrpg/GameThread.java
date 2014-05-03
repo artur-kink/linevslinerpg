@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 /**
  * Main game thread.
@@ -69,8 +70,8 @@ public class GameThread extends Thread
 	private Button continueButton;
 	
 	//Battle screen ui elements.
-	private Button leftButton;
-	private Button rightButton;
+	private ImageButton leftButton;
+	private ImageButton rightButton;
 	private Button resetButton;
 	
 	/** Thread running state. */
@@ -85,6 +86,8 @@ public class GameThread extends Thread
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
 	public Vector<Item> items;
+	
+	public Vector<Item> playerItems;
 	
 	public Vector<Particle> particles;
 	
@@ -114,18 +117,17 @@ public class GameThread extends Thread
 		continueButton.setOnClickListener(this);
 		continueButton.setText("Continue");
 		
-		leftButton = new Button(MainActivity.context);
+		leftButton = new ImageButton(MainActivity.context);
 		leftButton.setOnClickListener(this);
+		leftButton.setImageResource(R.drawable.arrow);
 		
-		rightButton = new Button(MainActivity.context);
+		rightButton = new ImageButton(MainActivity.context);
 		rightButton.setOnClickListener(this);
+		rightButton.setImageResource(R.drawable.arrow);
 		
 		resetButton = new Button(MainActivity.context);
 		resetButton.setOnClickListener(this);
-		
-		rightButton = new Button(MainActivity.context);
-		rightButton.setOnClickListener(this);
-		
+
 		//Create the ad
 	    adView = new AdView(MainActivity.context);
 	    adView.setAdSize(AdSize.BANNER);
@@ -154,6 +156,8 @@ public class GameThread extends Thread
 		line.setDirection(0, -1);
 		line.setColor(128, 0, 255, 0);
 		line.setMap(map);
+		
+		setTurnButtons();
 		
 		enemies = new Vector<LineEntity>();
 		
@@ -294,7 +298,7 @@ public class GameThread extends Thread
 				line.update(currentTimeMillis);
 				
 				for(int i = 0; i < items.size(); i++){
-					if(new Rect((int)line.getX()*map.tileSize, (int)line.getY()*map.tileSize, (int)line.getX()*map.tileSize+32, (int)line.getY()*map.tileSize+32).intersect(
+					if(new Rect((int)line.getX()*map.tileSize - 16, (int)line.getY()*map.tileSize- 16, (int)line.getX()*map.tileSize+16, (int)line.getY()*map.tileSize+16).intersect(
 							new Rect(items.get(i).x, items.get(i).y, items.get(i).x + items.get(i).width, items.get(i).y + items.get(i).height))){
 						items.remove(i);
 						i--;
@@ -309,13 +313,9 @@ public class GameThread extends Thread
 				
 				for(int i = 0; i < enemies.size(); i++){
 					enemies.get(i).update(currentTimeMillis);
-					if(enemies.get(i).dead){
-						enemies.remove(i);
-						i--;
-					}
 				}
 				
-				if(line.health <= 0){
+				if(line.dead){
 					setScreen(Screen.START);
 				}
 				
@@ -334,6 +334,16 @@ public class GameThread extends Thread
 		}
 	}
 
+	public void setTurnButtons(){
+		if(line.getYVelocity() != 0){
+			leftButton.setRotation(180);
+			rightButton.setRotation(0);
+		}else if(line.getXVelocity() != 0){
+			rightButton.setRotation(270);
+			leftButton.setRotation(90);
+		}
+	}
+	
 	@Override
 	public void onClick(View v) {
 		if(currentScreen == Screen.START){
@@ -355,12 +365,14 @@ public class GameThread extends Thread
 				}else if(line.getXVelocity() != 0){
 					line.setDirection(0, -1);
 				}
+				setTurnButtons();
 			}else if(v == leftButton){
 				if(line.getYVelocity() != 0){
 					line.setDirection(-1, 0);
 				}else if(line.getXVelocity() != 0){
 					line.setDirection(0, 1);
 				}
+				setTurnButtons();
 			}else if(v == resetButton){
 				resetGame();
 			}

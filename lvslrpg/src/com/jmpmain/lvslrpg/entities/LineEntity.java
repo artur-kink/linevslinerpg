@@ -125,6 +125,9 @@ public class LineEntity extends Entity {
 	@Override
 	public void update(long time) {
 		
+		if(dead)
+			return;
+		
 		if(time - lastFrameUpdate > 100){
 			frame++;
 			if(frame > 1){
@@ -177,20 +180,27 @@ public class LineEntity extends Entity {
 	public void draw(Canvas canvas) {
 		Paint p = new Paint();
 		
-		//Draw sprite.
-		canvas.drawBitmap(GameSurface.character, new Rect(frame*42, 0, frame*42 + 42, 42),
-				new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 16, 
-						(int)(x*map.tileSize)- 16 + 42, (int)(y*map.tileSize) - 16 + 42), p);
-		
-		//Draw health bar.
-		p.setARGB(64, 255, 0, 0);
-		//Health bar background.
-		canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 24,
-				(int)(x*map.tileSize) + 32, (int)(y*map.tileSize) - 16), p);
-		
-		//Foreground actual health.
-		canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 24,
-				(int)(x*map.tileSize) + (int)(32*((float)health/(float)maxHealth)), (int)(y*map.tileSize) - 16), p);
+		if(dead){
+			//Draw dead body.
+			canvas.drawBitmap(GameSurface.dead, new Rect(0,0, 32, 32),
+					new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 16, 
+							(int)(x*map.tileSize)- 16 + 32, (int)(y*map.tileSize) - 16 + 32), p);
+		}else{
+			//Draw sprite.
+			canvas.drawBitmap(GameSurface.character, new Rect(frame*42, 0, frame*42 + 42, 42),
+					new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 16, 
+							(int)(x*map.tileSize)- 16 + 42, (int)(y*map.tileSize) - 16 + 42), p);
+			
+			//Draw health bar.
+			p.setARGB(64, 255, 0, 0);
+			//Health bar background.
+			canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 24,
+					(int)(x*map.tileSize) + 32, (int)(y*map.tileSize) - 16), p);
+			
+			//Foreground actual health.
+			canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 24,
+					(int)(x*map.tileSize) + (int)(32*((float)health/(float)maxHealth)), (int)(y*map.tileSize) - 16), p);
+		}
 	}
 	
 	public void drawBackground(Canvas canvas) {
