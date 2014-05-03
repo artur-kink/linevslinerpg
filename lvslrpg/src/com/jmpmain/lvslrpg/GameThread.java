@@ -17,13 +17,15 @@ import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 
 /**
  * Main game thread.
@@ -51,7 +53,7 @@ public class GameThread extends Thread
 	private GameSurface gameSurface;
 	
 	/** Layout for UI elements. Above the game surface. */
-	public AbsoluteLayout uiLayout;
+	public RelativeLayout uiLayout;
 	
 	/** List of screen types. */
 	public enum Screen{
@@ -109,6 +111,23 @@ public class GameThread extends Thread
 		particles = new Vector<Particle>();
 		
 		//Create UI elements.
+		//Create the ad
+	    adView = new AdView(MainActivity.context);
+	    adView.setAdSize(AdSize.BANNER);
+	    adView.setAdUnitId(MainActivity.context.getResources().getString(R.string.AdId));
+	    
+	    AdRequest.Builder adBuilder = new AdRequest.Builder()
+	        .addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+	    for(int i = 0; i < MainActivity.context.getResources().getStringArray(R.array.TestDevices).length; i++){
+	    	adBuilder.addTestDevice(MainActivity.context.getResources().getStringArray(R.array.TestDevices)[i]);
+	    }
+	    AdRequest adRequest = adBuilder.build();
+
+	    //Load ad
+	    if(adRequest != null){
+	    	adView.loadAd(adRequest);
+	    }
+		
 		startButton = new Button(MainActivity.context);
 		startButton.setOnClickListener(this);
 		startButton.setText("Start");
@@ -128,23 +147,6 @@ public class GameThread extends Thread
 		resetButton = new Button(MainActivity.context);
 		resetButton.setOnClickListener(this);
 
-		//Create the ad
-	    adView = new AdView(MainActivity.context);
-	    adView.setAdSize(AdSize.BANNER);
-	    adView.setAdUnitId(MainActivity.context.getResources().getString(R.string.AdId));
-	    
-	    AdRequest.Builder adBuilder = new AdRequest.Builder()
-	        .addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-	    for(int i = 0; i < MainActivity.context.getResources().getStringArray(R.array.TestDevices).length; i++){
-	    	adBuilder.addTestDevice(MainActivity.context.getResources().getStringArray(R.array.TestDevices)[i]);
-	    }
-	    AdRequest adRequest = adBuilder.build();
-
-	    //Load ad
-	    if(adRequest != null){
-	    	adView.loadAd(adRequest);
-	    }
-	    
 		setRunning(false);
 	}
 	
@@ -197,30 +199,47 @@ public class GameThread extends Thread
 		
 		//Make sure running on UI thread.
 		((MainActivity)MainActivity.context).runOnUiThread(new Runnable() {
-		     @Override
+		     @SuppressWarnings("deprecation")
+			 @Override
 		     public void run() {
 		    	 uiLayout.removeAllViews();
 		 		
 		 		if(currentScreen == Screen.START){
-		 			uiLayout.addView(adView);
-		 			uiLayout.addView(startButton);
+		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		 			uiLayout.addView(adView, params);
+		 			
+		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.CENTER_VERTICAL);
+		 			uiLayout.addView(startButton, params);
+		 			
 		 		}
 		 		else if(currentScreen == Screen.MENU){
-		 			uiLayout.addView(adView);
-		 			uiLayout.addView(continueButton);
+		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		 			uiLayout.addView(adView, params);
+		 			
+		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.CENTER_VERTICAL);
+		 			uiLayout.addView(continueButton, params);
 		 		}
 		 		else if(currentScreen == Screen.BATTLE){
-		 			uiLayout.addView(resetButton,
-		 					new AbsoluteLayout.LayoutParams(100, 100,
-		 						10, 10));
+		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			uiLayout.addView(resetButton, params);
 		 			
-		 			uiLayout.addView(rightButton,
-		 				new AbsoluteLayout.LayoutParams(150, 150,
-		 					gameSurface.getWidth() - 150, gameSurface.getHeight() - 150));
+		 			params = new LayoutParams(150, 150);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		 			uiLayout.addView(rightButton, params);
 		 			
-		 			uiLayout.addView(leftButton,
-		 					new AbsoluteLayout.LayoutParams(150, 150,
-		 						0, gameSurface.getHeight() - 150));
+		 			params = new LayoutParams(150, 150);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		 			uiLayout.addView(leftButton, params);
 		 		}
 		    }
 		});

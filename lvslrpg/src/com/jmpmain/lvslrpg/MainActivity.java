@@ -13,6 +13,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 /**
  * The main activity.
@@ -39,7 +40,7 @@ public class MainActivity extends Activity {
 		//Create frame layout to contain game surface and ui layout.
 		FrameLayout baseLayout = new FrameLayout(this);
 		//Create ui layout.
-		AbsoluteLayout uiLayout = new AbsoluteLayout(this);
+		RelativeLayout uiLayout = new RelativeLayout(this);
 		
 
 		surface = new GameSurface(this);
