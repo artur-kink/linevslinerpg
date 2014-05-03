@@ -32,6 +32,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	/** Application Context. */
 	private Context context;
 	
+	public static Bitmap city;
 	public static Bitmap character;
 	public static Bitmap coin;
 	
@@ -50,6 +51,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		
 		paint = new Paint();
 		
+		city = BitmapFactory.decodeResource(getResources(), R.drawable.city);
 		character = BitmapFactory.decodeResource(getResources(), R.drawable.c1);
 		coin = BitmapFactory.decodeResource(getResources(), R.drawable.coin);
 		
@@ -85,11 +87,14 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		
 		//Draw line canvas.
 		thread.line.drawBackground(thread.map.lineCanvas);
-		
+
 		for(int i = 0; i < thread.enemies.size(); i++){
 			thread.enemies.get(i).drawBackground(thread.map.lineCanvas);
 		}
 		canvas.drawBitmap(thread.map.lineCanvas.bitmap, getMatrix(), paint);
+
+		canvas.drawBitmap(city, new Rect(0, 0, 64, 64),
+				new Rect(thread.map.city.x, thread.map.city.y, thread.map.city.x + 64, thread.map.city.y + 64), paint);
 		
 		thread.line.draw(canvas);
 		

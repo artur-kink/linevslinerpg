@@ -11,7 +11,7 @@ public class Blood extends Particle {
 
 	public long createTime;
 	
-	private static Paint paint;
+	private Paint paint;
 	private Rect particle;
 	
 	private float xVelocity;
@@ -21,23 +21,23 @@ public class Blood extends Particle {
 		destroy = false;
 		createTime = time;
 		
-		particle = new Rect(x, y, x+3, y+3);
+		particle = new Rect(x, y, x+5, y+5);
 		
-		xVelocity = (float)(Math.random()-0.5)*10;
-		yVelocity = (float)(Math.random()-0.5)*10;
+		xVelocity = (float)(Math.random()-0.5)*7;
+		yVelocity = (float)(Math.random()-0.5)*7;
 		
-		if(paint == null){
-			paint = new Paint();
-			paint.setARGB(128, 255, 0, 0);
-		}
+		paint = new Paint();
+		paint.setARGB(180, 255, 0, 0);
 	}
 	
 	@Override
 	public void update(long time) {
-		if(time - createTime > 1000){
+		if(time - createTime >= 1000){
 			destroy = true;
 			return;
 		}
+		
+		paint.setAlpha(Math.max(0, (int)(180.0f*(1 - (float)(time - createTime)/1000.0f))));
 		
 		particle.top += yVelocity;
 		particle.bottom += yVelocity;

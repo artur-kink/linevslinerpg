@@ -149,8 +149,7 @@ public class LineEntity extends Entity {
 				}
 			}
 			
-			if(x >= 0 && y >= 0 && x < map.width && y < map.height
-					&& map.getTile(lastXCheck, lastYCheck) != TileType.Exit)
+			if(x >= 0 && y >= 0 && x < map.width && y < map.height)
 				map.setTile(lastXCheck, lastYCheck, TileType.Entity);
 			
 		}

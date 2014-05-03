@@ -11,7 +11,6 @@ public class Map {
 	public enum TileType{
 		Empty,
 		Entity,
-		Exit,
 		Ground,
 		Water,
 		Sand
@@ -26,6 +25,8 @@ public class Map {
 	public int height;
 	
 	public int tileSize;
+	
+	public Point city;
 	
 	public Point playerStart;
 	

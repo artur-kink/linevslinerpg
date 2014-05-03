@@ -27,8 +27,6 @@ public class MapGenerator {
 			paint.setARGB(255, 25 + r, 25 + g, 200 + b);
 		else if(type == Map.TileType.Sand)
 			paint.setARGB(255, 200 + r, 200 + g, 20 + b);
-		else if(type == Map.TileType.Exit)
-			paint.setARGB(255, 255, 0, 0);
 		
 		return paint;
 	}
@@ -46,8 +44,8 @@ public class MapGenerator {
 		MapTheme theme = MapTheme.Temperate;
 		CreateGround(map, Map.TileType.Ground);
 		
-		//Set exit point of map.
-		map.setTile(map.width/2, 10, TileType.Exit);
+		//Set city location.
+		map.city = new Point(width/2, 100);
 		
 		for(int i = 0; i < Math.random()*5; i++){
 			CreatePatch(map, Map.TileType.Water, (int)(Math.random()*map.width), (int)(Math.random()*map.height));

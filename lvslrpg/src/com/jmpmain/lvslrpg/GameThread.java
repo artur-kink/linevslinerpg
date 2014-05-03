@@ -12,6 +12,7 @@ import com.jmpmain.lvslrpg.particles.Particle;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -300,9 +301,9 @@ public class GameThread extends Thread
 					}
 				}
 				
-				if((int)line.getX() >= 0 && (int)line.getY() >= 0 && 
-						(int)line.getX() < map.width && (int)line.getY() < map.height &&
-						map.getTile((int)line.getX(), (int)line.getY()) == TileType.Exit){
+				//Check if player entered city.
+				if(new Rect((int)line.getX()*map.tileSize, (int)line.getY()*map.tileSize, (int)line.getX()*map.tileSize+32, (int)line.getY()*map.tileSize+32).intersect(
+						new Rect(map.city.x, map.city.y, map.city.x + 32, map.city.y + 32))){
 					setScreen(Screen.MENU);
 				}
 				
