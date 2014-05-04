@@ -8,27 +8,39 @@ import android.graphics.Point;
 public class MapGenerator {
 
 	public enum MapTheme{
-		Temperate
+		Temperate,
+		Desert
 	}
 	
 	/**
 	 * Get color of tile based on type.
 	 */
-	private static Paint GetTypeColor(TileType type){
+	private static Paint GetTypeColor(MapTheme theme, TileType type){
 		Paint paint = new Paint();
 		
 		int r =  (int)((Math.random()-0.5f)*10);
 		int g =  (int)((Math.random()-0.5f)*10);
 		int b =  (int)((Math.random()-0.5f)*10);
 		
-		if(type == Map.TileType.Ground)
-			paint.setARGB(255, 25 + r, 200 + g, 25 + b);
-		else if(type == TileType.Water)
-			paint.setARGB(255, 25 + r, 25 + g, 200 + b);
-		else if(type == TileType.Sand)
-			paint.setARGB(255, 200 + r, 200 + g, 20 + b);
-		else if(type == TileType.Mountain)
-			paint.setARGB(255, 128 + r, 128 + g, 128 + b);
+		if(theme == MapTheme.Temperate){
+			if(type == Map.TileType.Ground)
+				paint.setARGB(255, 25 + r, 200 + g, 25 + b);
+			else if(type == TileType.Water)
+				paint.setARGB(255, 25 + r, 25 + g, 200 + b);
+			else if(type == TileType.Sand)
+				paint.setARGB(255, 200 + r, 200 + g, 20 + b);
+			else if(type == TileType.Mountain)
+				paint.setARGB(255, 128 + r, 128 + g, 128 + b);
+		}else if(theme == MapTheme.Desert){
+			if(type == Map.TileType.Ground)
+				paint.setARGB(255, 25 + r, 200 + g, 25 + b);
+			else if(type == TileType.Water)
+				paint.setARGB(255, 25 + r, 25 + g, 200 + b);
+			else if(type == TileType.Sand)
+				paint.setARGB(255, 200 + r, 200 + g, 20 + b);
+			else if(type == TileType.Mountain)
+				paint.setARGB(255, 192 + r, 139 + g, 5 + b);
+		}
 		
 		return paint;
 	}
@@ -44,29 +56,40 @@ public class MapGenerator {
 		Map map = new Map(width, height, tileSize);
 		
 		MapTheme theme = MapTheme.Temperate;
-		CreateGround(map, TileType.Ground);
 		
+		if(Math.random() > 0.7)
+			theme = MapTheme.Desert;
+		
+		
+		if(theme == MapTheme.Temperate)
+			CreateGround(map, TileType.Ground);
+		else if(theme == MapTheme.Desert)
+			CreateGround(map, TileType.Sand);
+			
 		//Set city location.
 		map.city = new Point(width/2, 100);
 		
 		//Create mountains
 		for(int i = 0; i < Math.random()*5; i++){
-			CreatePatch(map, TileType.Mountain, 12, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+			CreatePatch(map, theme, TileType.Mountain, 12, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
 		}
 		
 		//Create lakes
 		for(int i = 0; i < Math.random()*5; i++){
-			CreatePatch(map, TileType.Water, 7, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+			CreatePatch(map, theme, TileType.Water, 7, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
 		}
-		//Create beaches for lakes
-		CreateBorder(map, TileType.Water, TileType.Sand, 3);
+		
+		if(theme == MapTheme.Temperate)
+			CreateBorder(map, TileType.Water, TileType.Sand, 3);
+		else if(theme == MapTheme.Desert)
+			CreateBorder(map, TileType.Water, TileType.Ground, 2);
 		
 		//Set player start
 		map.playerStart = new Point(map.width/2, map.height - 5);
 		
 		//Create enemy starting positions.
 		for(int i = 0; i <= Math.random()*5; i++){
-			map.enemyStarts.add(new Point((int)(map.width*Math.random()), map.height/2));
+			map.enemyStarts.add(new Point((int)(map.width*Math.random()), (int) ((map.height/2)*Math.random())));
 		}
 		
 		Paint outline = new Paint();
@@ -74,7 +97,7 @@ public class MapGenerator {
 		outline.setARGB(20, 0, 0, 0);
 		
 		//Draw map.
-		DrawMap(map);
+		DrawMap(map, theme);
 		
 		//Draw map grid.
 		for(int r = 0; r < map.height; r++){
@@ -95,7 +118,7 @@ public class MapGenerator {
 		
 		for(int r = 0; r < map.height; r++){
 			for(int c = 0; c < map.width; c++){
-				map.setTile(c, r, Map.TileType.Ground);
+				map.setTile(c, r, type);
 			}
 		}
 	}
@@ -129,45 +152,67 @@ public class MapGenerator {
 							map.setTile(c, r, borderType);
 						}
 					}
+				}
+				for(int w = 1; w <= width/2; w++){
+					if(c > w && r > w){
+						if(map.getTile(c, r) != target && map.getTile(c-w, r-w) == target){
+							map.setTile(c, r, borderType);
+						}
+					}
+					if(c > w && r < map.height-w){
+						if(map.getTile(c, r) != target && map.getTile(c-w, r+w) == target){
+							map.setTile(c, r, borderType);
+						}
+					}
 					
+					if(c < map.width-w && r < map.height-w){
+						if(map.getTile(c, r) != target && map.getTile(c+w, r+w) == target){
+							map.setTile(c, r, borderType);
+						}
+					}
+					if(r > w && c < map.width-w){
+						if(map.getTile(c, r) != target && map.getTile(c+w, r-w) == target){
+							map.setTile(c, r, borderType);
+						}
+					}
 				}
 			}
 		}
 		
 	}
 	
-	private static void CreatePatch(Map map, TileType type, int size, int x, int y){
-		recursivePatch(map, type, x, y, size);
+	private static void CreatePatch(Map map, MapTheme theme, TileType type, int size, int x, int y){
+		recursivePatch(map, theme, type, x, y, size);
 	}
 	
-	private static void recursivePatch(Map map, TileType type, int x, int y, int depth){
+	private static void recursivePatch(Map map, MapTheme theme, TileType type, int x, int y, int depth){
 		if(depth <= 0 || x >= map.width || x < 0 || y >= map.height || y < 0)
 			return;
 		
 		map.lineCanvas.drawRect(x*map.tileSize, y*map.tileSize,
-				x*map.tileSize + map.tileSize, y*map.tileSize + map.tileSize, GetTypeColor(type));
+				x*map.tileSize + map.tileSize, y*map.tileSize + map.tileSize, GetTypeColor(theme, type));
 		
 		map.setTile(x, y, type);
 		
 		if(Math.random() > 0.5)
-			recursivePatch(map, type, x-1, y, depth-1);
+			recursivePatch(map, theme, type, x-1, y, depth-1);
 		if(Math.random() > 0.5)
-			recursivePatch(map, type, x+1, y, depth-1);
+			recursivePatch(map, theme, type, x+1, y, depth-1);
 		if(Math.random() > 0.5)
-			recursivePatch(map, type, x, y-1, depth-1);
+			recursivePatch(map, theme, type, x, y-1, depth-1);
 		if(Math.random() > 0.5)
-			recursivePatch(map, type, x, y+1, depth-1);
+			recursivePatch(map, theme, type, x, y+1, depth-1);
 	}
 	
 	/**
 	 * Draw map tiles based on tile info.
 	 */
-	private static void DrawMap(Map map){
+	private static void DrawMap(Map map, MapTheme theme){
 		for(int r = 0; r < map.height; r++){
 			for(int c = 0; c < map.width; c++){
 				map.lineCanvas.drawRect(c*map.tileSize, r*map.tileSize,
 						c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize,
-						GetTypeColor(map.getTile(c, r)));
+						GetTypeColor(theme, map.getTile(c, r)));
 			}
 		}
 		

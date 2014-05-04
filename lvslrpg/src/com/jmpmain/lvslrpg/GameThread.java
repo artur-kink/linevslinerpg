@@ -75,7 +75,6 @@ public class GameThread extends Thread
 	//Battle screen ui elements.
 	private ImageButton leftButton;
 	private ImageButton rightButton;
-	private Button resetButton;
 	
 	/** Thread running state. */
 	public boolean running;
@@ -98,6 +97,8 @@ public class GameThread extends Thread
 	private AdView adView;
 	
 	public static GameThread instance;
+	
+	public int level;
 	
 	public GameThread(SurfaceHolder holder, GameSurface surface){
 		gameSurface = surface;
@@ -144,9 +145,6 @@ public class GameThread extends Thread
 		rightButton = new ImageButton(MainActivity.context);
 		rightButton.setOnClickListener(this);
 		rightButton.setImageResource(R.drawable.arrow);
-		
-		resetButton = new Button(MainActivity.context);
-		resetButton.setOnClickListener(this);
 
 		setRunning(false);
 	}
@@ -159,6 +157,8 @@ public class GameThread extends Thread
 		line = new PlayerLineEntity(0, 0);
 		line.setColor(128, 0, 255, 0);
 		
+		level = 0;
+		
 		setTurnButtons();
 		
 		newLevel();
@@ -168,6 +168,7 @@ public class GameThread extends Thread
 	 * Creates new level.
 	 */
 	public void newLevel(){
+		level++;
 		
 		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 14);
 		
@@ -181,7 +182,9 @@ public class GameThread extends Thread
 		for(int i = 0; i < map.enemyStarts.size(); i++){
 			LineEntity enemy = new AILineEntity(map.enemyStarts.get(i).x, map.enemyStarts.get(i).y);
 			enemy.setColor(128, (int)(Math.random()*255), (int)(Math.random()*255), (int)(Math.random()*255));
+			enemy.setDirection(0, 1);
 			enemy.setMap(map);
+			enemy.setMaxHealth(enemy.maxHealth + level);
 			enemies.add(enemy);
 		}
 		
@@ -245,10 +248,7 @@ public class GameThread extends Thread
 		 			uiLayout.addView(continueButton, params);
 		 		}
 		 		else if(currentScreen == Screen.BATTLE){
-		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			uiLayout.addView(resetButton, params);
-		 			
-		 			params = new LayoutParams(150, 150);
+		 			LayoutParams params = new LayoutParams(150, 150);
 		 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		 			uiLayout.addView(rightButton, params);
@@ -414,8 +414,6 @@ public class GameThread extends Thread
 					line.setDirection(0, 1);
 				}
 				setTurnButtons();
-			}else if(v == resetButton){
-				resetGame();
 			}
 		}
 	}

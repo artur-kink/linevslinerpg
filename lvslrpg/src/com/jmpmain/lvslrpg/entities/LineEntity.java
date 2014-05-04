@@ -132,6 +132,15 @@ public class LineEntity extends Entity {
 			health = maxHealth;
 	}
 	
+	/**
+	 * Set the max health of entity.
+	 * @param h Max health value to set.
+	 */
+	public void setMaxHealth(int h){
+		maxHealth = h;
+		health = h;
+	}
+	
 	@Override
 	public void update(long time) {
 		
