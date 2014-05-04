@@ -36,6 +36,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	public static Bitmap character;
 	public static Bitmap coin;
 	public static Bitmap dead;
+	public static Bitmap enemy;
 	public static Bitmap potion;
 	
 	public GameSurface(Context context) {
@@ -57,6 +58,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		city = BitmapFactory.decodeResource(getResources(), R.drawable.city);
 		character = BitmapFactory.decodeResource(getResources(), R.drawable.c1);
 		coin = BitmapFactory.decodeResource(getResources(), R.drawable.coin);
+		enemy = BitmapFactory.decodeResource(getResources(), R.drawable.c2);
 		potion = BitmapFactory.decodeResource(getResources(), R.drawable.potion);
 		
 		setFocusable(true);

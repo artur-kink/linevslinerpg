@@ -155,6 +155,7 @@ public class GameThread extends Thread
 	public void resetGame(){
 		
 		line = new PlayerLineEntity(0, 0);
+		line.character = gameSurface.character;
 		line.setColor(128, 0, 255, 0);
 		
 		level = 0;
@@ -185,6 +186,7 @@ public class GameThread extends Thread
 			enemy.setDirection(0, 1);
 			enemy.setMap(map);
 			enemy.setMaxHealth(enemy.maxHealth + level);
+			enemy.character = gameSurface.enemy;
 			enemies.add(enemy);
 		}
 		
@@ -333,6 +335,7 @@ public class GameThread extends Thread
 				
 				line.update(currentTimeMillis);
 				
+				//Check for item pickups
 				for(int i = 0; i < items.size(); i++){
 					if(new Rect((int)line.getX()*map.tileSize - 16, (int)line.getY()*map.tileSize- 16, (int)line.getX()*map.tileSize+16, (int)line.getY()*map.tileSize+16).intersect(
 							new Rect(items.get(i).x, items.get(i).y, items.get(i).x + items.get(i).width, items.get(i).y + items.get(i).height))){
@@ -347,8 +350,8 @@ public class GameThread extends Thread
 				}
 				
 				//Check if player entered city.
-				if(new Rect((int)line.getX()*map.tileSize, (int)line.getY()*map.tileSize, (int)line.getX()*map.tileSize+32, (int)line.getY()*map.tileSize+32).intersect(
-						new Rect(map.city.x, map.city.y, map.city.x + 32, map.city.y + 32))){
+				if(new Rect((int)line.getX()*map.tileSize, (int)line.getY()*map.tileSize, (int)line.getX()*map.tileSize+64, (int)line.getY()*map.tileSize+64).intersect(
+						new Rect(map.city.x, map.city.y, map.city.x + 64, map.city.y + 64))){
 					setScreen(Screen.MENU);
 				}
 				

@@ -6,6 +6,7 @@ import com.jmpmain.lvslrpg.Map;
 import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.particles.Blood;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -80,6 +81,8 @@ public class LineEntity extends Entity {
 	
 	/** Paint used to draw line. */
 	private Paint paint;
+	
+	public Bitmap character;
 	
 	/** Set line color. */
 	public void setColor(int a, int r, int g, int b){
@@ -175,7 +178,7 @@ public class LineEntity extends Entity {
 				map.setTile(lastXCheck, lastYCheck, TileType.Entity);
 			
 		}
-		if(health < 0){
+		if(health <= 0){
 			dead = true;
 		}
 	}
@@ -207,9 +210,9 @@ public class LineEntity extends Entity {
 							(int)(x*map.tileSize)- 16 + 32, (int)(y*map.tileSize) - 16 + 32), p);
 		}else{
 			//Draw sprite.
-			canvas.drawBitmap(GameSurface.character, new Rect(frame*42, 0, frame*42 + 42, 42),
+			canvas.drawBitmap(character, new Rect(frame*32, 0, frame*32 + 32, 32),
 					new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 16, 
-							(int)(x*map.tileSize)- 16 + 42, (int)(y*map.tileSize) - 16 + 42), p);
+							(int)(x*map.tileSize)- 16 + 32, (int)(y*map.tileSize) - 16 + 32), p);
 			
 			//Draw health bar.
 			p.setARGB(64, 255, 0, 0);
