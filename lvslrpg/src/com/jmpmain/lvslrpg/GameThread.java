@@ -98,6 +98,9 @@ public class GameThread extends Thread
 	
 	public Controls gameControls;
 	
+	public int startTouchX;
+	public int startTouchY;
+	
 	public int touchX;
 	public int touchY;
 
@@ -125,7 +128,7 @@ public class GameThread extends Thread
 		
 		instance = this;
 		
-		gameControls = Controls.Button_Clockwise;
+		gameControls = Controls.Button_Static;
 		
 		updateCallCount = 0;
 		ups = 0;
@@ -330,10 +333,26 @@ public class GameThread extends Thread
 	 * Screen touch handler.
 	 */
 	public void onTouchEvent(MotionEvent event){
+		if(event.getAction() == MotionEvent.ACTION_DOWN){
+			startTouchX = (int) event.getX();
+			startTouchY = (int) event.getY();
+		}
+		
 		if(event.getAction() == MotionEvent.ACTION_DOWN ||
 			event.getAction() == MotionEvent.ACTION_MOVE){
 			touchX = (int) event.getX();
 			touchY = (int) event.getY();
+		}
+		
+		if(gameControls == Controls.Swipe && event.getAction() == MotionEvent.ACTION_UP){
+			if(Math.abs(startTouchX - (int) event.getX()) > Math.abs(startTouchY - (int) event.getY())
+				&& line.getYVelocity() != 0){
+				line.setDirection(Math.signum((int) event.getX() - startTouchX), 0);
+			}else{
+				if(startTouchY != (int) event.getY() && line.getXVelocity() != 0){
+					line.setDirection(0, Math.signum(startTouchX - (int) event.getX()));
+				}
+			}
 		}
 	}
 	
@@ -534,14 +553,18 @@ public class GameThread extends Thread
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-		if(view == controlsSpinner){
-			
+		if(id == 0){
+			gameControls = Controls.Button_Static;
+		}else if(id == 1){
+			gameControls = Controls.Button_Clockwise;
+		}else if(id == 2){
+			gameControls = Controls.Swipe;
+		}else if(id == 3){
+			gameControls = Controls.Tilt;
 		}
 	}
 
 	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
-		// TODO Auto-generated method stub
-		
 	}
 }
