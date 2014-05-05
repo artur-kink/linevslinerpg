@@ -13,6 +13,7 @@ import com.jmpmain.lvslrpg.particles.Particle;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Sensor;
@@ -23,17 +24,21 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.Spinner;
 
 /**
  * Main game thread.
  * All game logic is managed here.
  */
 public class GameThread extends Thread
-	implements SensorEventListener, OnClickListener{
+	implements SensorEventListener, OnClickListener, OnItemSelectedListener{
 	
 	/** Counter for updates per second(ups). */
 	private int updateCallCount;
@@ -59,6 +64,7 @@ public class GameThread extends Thread
 	/** List of screen types. */
 	public enum Screen{
 		START,
+		OPTIONS,
 		MENU,
 		BATTLE
 	}
@@ -68,6 +74,10 @@ public class GameThread extends Thread
 	
 	//Start screen ui elements.
 	private Button startButton;
+	private Button optionsButton;
+	
+	//Options screen ui elements.
+	private Spinner controlsSpinner;
 	
 	//Menu screen ui elements.
 	private Button continueButton;
@@ -78,6 +88,15 @@ public class GameThread extends Thread
 	
 	/** Thread running state. */
 	public boolean running;
+	
+	public enum Controls{
+		Button_Static,
+		Button_Clockwise,
+		Swipe,
+		Tilt
+	}
+	
+	public Controls gameControls;
 	
 	public int touchX;
 	public int touchY;
@@ -106,6 +125,8 @@ public class GameThread extends Thread
 		
 		instance = this;
 		
+		gameControls = Controls.Button_Clockwise;
+		
 		updateCallCount = 0;
 		ups = 0;
 		lastUpdateCallReset = 0;
@@ -129,10 +150,26 @@ public class GameThread extends Thread
 	    if(adRequest != null){
 	    	adView.loadAd(adRequest);
 	    }
+	    adView.setId(1);
 		
 		startButton = new Button(MainActivity.context);
 		startButton.setOnClickListener(this);
 		startButton.setText("Start");
+		startButton.setId(2);
+		
+		optionsButton = new Button(MainActivity.context);
+		optionsButton.setOnClickListener(this);
+		optionsButton.setText("Options");
+		optionsButton.setId(3);
+		
+		controlsSpinner = new Spinner(MainActivity.context);
+		controlsSpinner.setBackgroundColor(Color.WHITE);
+		ArrayAdapter<CharSequence> adapter =
+				ArrayAdapter.createFromResource(MainActivity.context, R.array.ControlsOptions, android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// Apply the adapter to the spinner
+		controlsSpinner.setAdapter(adapter);
+		controlsSpinner.setOnItemSelectedListener(this);
 		
 		continueButton = new Button(MainActivity.context);
 		continueButton.setOnClickListener(this);
@@ -221,7 +258,6 @@ public class GameThread extends Thread
 		
 		//Make sure running on UI thread.
 		((MainActivity)MainActivity.context).runOnUiThread(new Runnable() {
-		     @SuppressWarnings("deprecation")
 			 @Override
 		     public void run() {
 		    	 uiLayout.removeAllViews();
@@ -237,6 +273,22 @@ public class GameThread extends Thread
 		 			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		 			uiLayout.addView(startButton, params);
 		 			
+		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.BELOW, startButton.getId());
+		 			uiLayout.addView(optionsButton, params);
+		 			
+		 		}
+		 		else if(currentScreen == Screen.OPTIONS){
+		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		 			uiLayout.addView(adView, params);
+		 			
+		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.CENTER_VERTICAL);
+		 			uiLayout.addView(controlsSpinner, params);
 		 		}
 		 		else if(currentScreen == Screen.MENU){
 		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -250,15 +302,18 @@ public class GameThread extends Thread
 		 			uiLayout.addView(continueButton, params);
 		 		}
 		 		else if(currentScreen == Screen.BATTLE){
-		 			LayoutParams params = new LayoutParams(150, 150);
-		 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		 			uiLayout.addView(rightButton, params);
-		 			
-		 			params = new LayoutParams(150, 150);
-		 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		 			uiLayout.addView(leftButton, params);
+		 			if(gameControls == Controls.Button_Clockwise || gameControls == Controls.Button_Static){
+			 			LayoutParams params = new LayoutParams(150, 150);
+			 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 			uiLayout.addView(rightButton, params);
+			 			
+			 			params = new LayoutParams(150, 150);
+			 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 			uiLayout.addView(leftButton, params);
+			 			setTurnButtons();
+		 			}
 		 		}
 		    }
 		});
@@ -379,13 +434,42 @@ public class GameThread extends Thread
 	}
 
 	public void setTurnButtons(){
-		if(line.getYVelocity() != 0){
-			leftButton.setRotation(180);
-			rightButton.setRotation(0);
-		}else if(line.getXVelocity() != 0){
-			rightButton.setRotation(270);
-			leftButton.setRotation(90);
+		if(gameControls == Controls.Button_Static){
+			if(line.getYVelocity() != 0){
+				leftButton.setRotation(180);
+				rightButton.setRotation(0);
+			}else if(line.getXVelocity() != 0){
+				rightButton.setRotation(270);
+				leftButton.setRotation(90);
+			}
+		}else if(gameControls == Controls.Button_Clockwise){
+			if(line.getYVelocity() > 0){
+				leftButton.setRotation(0);
+				rightButton.setRotation(180);
+			}else if(line.getYVelocity() < 0){
+				rightButton.setRotation(0);
+				leftButton.setRotation(180);
+			}else if(line.getXVelocity() > 0){
+				leftButton.setRotation(270);
+				rightButton.setRotation(90);
+			}else if(line.getXVelocity() < 0){
+				rightButton.setRotation(270);
+				leftButton.setRotation(90);
+			}
 		}
+	}
+	
+	public boolean onBackPressed(){
+		if(currentScreen == Screen.START){
+			return false;
+		}else if(currentScreen == Screen.OPTIONS){
+			setScreen(Screen.START);
+		}else if(currentScreen == Screen.BATTLE){
+			setScreen(Screen.START);
+		}else if(currentScreen == Screen.MENU){
+			setScreen(Screen.START);
+		}
+		return true;
 	}
 	
 	@Override
@@ -394,6 +478,8 @@ public class GameThread extends Thread
 			if(v == startButton){
 				resetGame();
 				setScreen(Screen.BATTLE);
+			}else if(v == optionsButton){
+				setScreen(Screen.OPTIONS);
 			}
 		}
 		else if(currentScreen == Screen.MENU){
@@ -404,20 +490,58 @@ public class GameThread extends Thread
 		}
 		else if(currentScreen == Screen.BATTLE){
 			if(v == rightButton){
-				if(line.getYVelocity() != 0){
-					line.setDirection(1, 0);
-				}else if(line.getXVelocity() != 0){
-					line.setDirection(0, -1);
+				if(gameControls == Controls.Button_Static){
+					if(line.getYVelocity() != 0){
+						line.setDirection(1, 0);
+					}else if(line.getXVelocity() != 0){
+						line.setDirection(0, -1);
+					}
+				}else if(gameControls == Controls.Button_Clockwise){
+					if(line.getYVelocity() > 0){
+						line.setDirection(-1, 0);
+					}else if(line.getYVelocity() < 0){
+						line.setDirection(1, 0);
+					}else if(line.getXVelocity() > 0){
+						line.setDirection(0, 1);
+					}else if(line.getXVelocity() < 0){
+						line.setDirection(0, -1);
+					}
 				}
 				setTurnButtons();
 			}else if(v == leftButton){
-				if(line.getYVelocity() != 0){
-					line.setDirection(-1, 0);
-				}else if(line.getXVelocity() != 0){
-					line.setDirection(0, 1);
+				if(gameControls == Controls.Button_Static){
+					if(line.getYVelocity() != 0){
+						line.setDirection(-1, 0);
+					}else if(line.getXVelocity() != 0){
+						line.setDirection(0, 1);
+					}
+				}else if(gameControls == Controls.Button_Clockwise){
+					if(line.getYVelocity() > 0){
+						line.setDirection(1, 0);
+					}else if(line.getYVelocity() < 0){
+						line.setDirection(-1, 0);
+					}else if(line.getXVelocity() > 0){
+						line.setDirection(0, -1);
+					}else if(line.getXVelocity() < 0){
+						line.setDirection(0, 1);
+					}
 				}
 				setTurnButtons();
 			}
 		}
+	}
+	
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int position,
+			long id) {
+		if(view == controlsSpinner){
+			
+		}
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
+		// TODO Auto-generated method stub
+		
 	}
 }

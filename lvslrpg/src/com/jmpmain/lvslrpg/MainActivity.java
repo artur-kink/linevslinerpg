@@ -69,6 +69,13 @@ public class MainActivity extends Activity {
 	}
 	
 	@Override
+	public void onBackPressed (){
+		if(thread.onBackPressed() == false){
+			super.onBackPressed();
+		}
+	}
+	
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 	    surface.thread.onTouchEvent(event);
 	    return true;
