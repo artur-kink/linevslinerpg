@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -29,6 +30,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Spinner;
@@ -180,12 +182,22 @@ public class GameThread extends Thread
 		
 		leftButton = new ImageButton(MainActivity.context);
 		leftButton.setOnClickListener(this);
-		leftButton.setImageResource(R.drawable.arrow);
+		leftButton.setImageResource(R.drawable.arrow_l);
+		leftButton.setScaleType(ScaleType.FIT_CENTER);
+		leftButton.setBackgroundColor(Color.TRANSPARENT);
+		
 		
 		rightButton = new ImageButton(MainActivity.context);
 		rightButton.setOnClickListener(this);
-		rightButton.setImageResource(R.drawable.arrow);
-
+		rightButton.setImageResource(R.drawable.arrow_r);
+		rightButton.setScaleType(ScaleType.FIT_CENTER);
+		rightButton.setBackgroundColor(Color.TRANSPARENT);
+		
+		Typeface pixelFont = Typeface.createFromAsset(MainActivity.context.getAssets(), "font/pixelart.ttf");
+		startButton.setTypeface(pixelFont);
+		optionsButton.setTypeface(pixelFont);
+		continueButton.setTypeface(pixelFont);
+		
 		setRunning(false);
 	}
 	
@@ -195,7 +207,7 @@ public class GameThread extends Thread
 	public void resetGame(){
 		
 		line = new PlayerLineEntity(0, 0);
-		line.character = gameSurface.character;
+		line.character = GameSurface.character;
 		line.setColor(128, 0, 255, 0);
 		
 		level = 0;
@@ -226,7 +238,7 @@ public class GameThread extends Thread
 			enemy.setDirection(0, 1);
 			enemy.setMap(map);
 			enemy.setMaxHealth(enemy.maxHealth + level);
-			enemy.character = gameSurface.enemy;
+			enemy.character = GameSurface.enemy;
 			enemies.add(enemy);
 		}
 		
@@ -329,39 +341,6 @@ public class GameThread extends Thread
 		running = r;
 	}
 	
-	/**
-	 * Screen touch handler.
-	 */
-	public void onTouchEvent(MotionEvent event){
-		if(event.getAction() == MotionEvent.ACTION_DOWN){
-			startTouchX = (int) event.getX();
-			startTouchY = (int) event.getY();
-		}
-		
-		if(event.getAction() == MotionEvent.ACTION_DOWN ||
-			event.getAction() == MotionEvent.ACTION_MOVE){
-			touchX = (int) event.getX();
-			touchY = (int) event.getY();
-		}
-		
-		if(gameControls == Controls.Swipe && event.getAction() == MotionEvent.ACTION_UP){
-			if(Math.abs(startTouchX - (int) event.getX()) > Math.abs(startTouchY - (int) event.getY())
-				&& line.getYVelocity() != 0){
-				line.setDirection(Math.signum((int) event.getX() - startTouchX), 0);
-			}else{
-				if(startTouchY != (int) event.getY() && line.getXVelocity() != 0){
-					line.setDirection(0, Math.signum(startTouchX - (int) event.getX()));
-				}
-			}
-		}
-	}
-	
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {}
-	
 	@SuppressLint("WrongCall")
 	private void drawCall(Canvas gameCanvas){
 		//Draw game state.
@@ -424,7 +403,7 @@ public class GameThread extends Thread
 				}
 				
 				//Check if player entered city.
-				if(new Rect((int)line.getX()*map.tileSize, (int)line.getY()*map.tileSize, (int)line.getX()*map.tileSize+64, (int)line.getY()*map.tileSize+64).intersect(
+				if(new Rect((int)line.getX()*map.tileSize - 16, (int)line.getY()*map.tileSize - 16, (int)line.getX()*map.tileSize+16, (int)line.getY()*map.tileSize+16).intersect(
 						new Rect(map.city.x, map.city.y, map.city.x + 64, map.city.y + 64))){
 					setScreen(Screen.MENU);
 				}
@@ -452,32 +431,62 @@ public class GameThread extends Thread
 		}
 	}
 
+	/*************************
+	 * Input Methods.
+	 ************************/
+	
+	/**
+	 * Set turning buttons to show correct turning
+	 * images depending on player movement.
+	 */
 	public void setTurnButtons(){
+		//Reset all previous transforms.
+		leftButton.setRotation(0);
+		rightButton.setRotation(0);
+		leftButton.setScaleX(1);
+		rightButton.setScaleX(1);
+		leftButton.setScaleY(1);
+		rightButton.setScaleY(1);
+		
 		if(gameControls == Controls.Button_Static){
-			if(line.getYVelocity() != 0){
-				leftButton.setRotation(180);
+			if(line.getYVelocity() > 0){
+				leftButton.setRotation(0);
+				leftButton.setScaleY(-1);
 				rightButton.setRotation(0);
-			}else if(line.getXVelocity() != 0){
+				rightButton.setScaleY(-1);
+			}else if(line.getYVelocity() < 0){
+				rightButton.setRotation(0);
+				leftButton.setRotation(0);
+			}else if(line.getXVelocity() > 0){
+				leftButton.setScaleY(-1);
+				rightButton.setScaleY(-1);
+				leftButton.setRotation(270);
 				rightButton.setRotation(270);
-				leftButton.setRotation(90);
+			}else if(line.getXVelocity() < 0){
+				rightButton.setRotation(270);
+				leftButton.setRotation(270);
 			}
 		}else if(gameControls == Controls.Button_Clockwise){
 			if(line.getYVelocity() > 0){
-				leftButton.setRotation(0);
+				leftButton.setRotation(180);
 				rightButton.setRotation(180);
 			}else if(line.getYVelocity() < 0){
 				rightButton.setRotation(0);
-				leftButton.setRotation(180);
+				leftButton.setRotation(0);
 			}else if(line.getXVelocity() > 0){
-				leftButton.setRotation(270);
+				leftButton.setRotation(90);
 				rightButton.setRotation(90);
 			}else if(line.getXVelocity() < 0){
 				rightButton.setRotation(270);
-				leftButton.setRotation(90);
+				leftButton.setRotation(270);
 			}
 		}
 	}
 	
+	/**
+	 * Back button pressed handler.
+	 * @return true if back was handled, else false.
+	 */
 	public boolean onBackPressed(){
 		if(currentScreen == Screen.START){
 			return false;
@@ -492,6 +501,9 @@ public class GameThread extends Thread
 	}
 	
 	@Override
+	/**
+	 * Button clicked handler.
+	 */
 	public void onClick(View v) {
 		if(currentScreen == Screen.START){
 			if(v == startButton){
@@ -566,5 +578,61 @@ public class GameThread extends Thread
 
 	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
+	}
+	
+
+	/**
+	 * Screen touch handler.
+	 */
+	public void onTouchEvent(MotionEvent event){
+		
+		//Record where touch began, used for swiping.
+		if(event.getAction() == MotionEvent.ACTION_DOWN){
+			startTouchX = (int) event.getX();
+			startTouchY = (int) event.getY();
+		}
+		
+		//Record current touch location.
+		if(event.getAction() == MotionEvent.ACTION_DOWN ||
+			event.getAction() == MotionEvent.ACTION_MOVE){
+			touchX = (int) event.getX();
+			touchY = (int) event.getY();
+		}
+		
+		//Handle swipe input if playing with swipe controls.
+		if(gameControls == Controls.Swipe && event.getAction() == MotionEvent.ACTION_UP){
+			
+			int xDelta = startTouchX - (int) event.getX();
+			int yDelta = startTouchY - (int) event.getY();
+			
+			//If player is moving in Y direction and swipe was in x direction.
+			if(line.getYVelocity() != 0 && Math.abs(xDelta) > Math.abs(yDelta)){
+				line.setDirection(-Math.signum(xDelta), 0);
+			}else if(line.getXVelocity() != 0 && Math.abs(yDelta) > Math.abs(xDelta)){
+				//If player is moving in X direction and swipe was in y direction.
+				line.setDirection(0, -Math.signum(yDelta));
+			}
+		}
+	}
+	
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+	@Override
+	/**
+	 * Handle tilt input if playing with tilt controls.
+	 */
+	public void onSensorChanged(SensorEvent event) {
+		if(gameControls == Controls.Tilt){
+			float x = event.values[0];
+			float y = event.values[1];
+			
+			if(Math.abs(x) >= 0.5 && line.getYVelocity() != 0 && Math.abs(x) > Math.abs(y)){
+				line.setDirection(-Math.signum(x), 0);
+			}else if(Math.abs(y) >= 0.5 && line.getXVelocity() != 0 && Math.abs(x) < Math.abs(y)){
+				line.setDirection(0, Math.signum(y));
+			}
+			
+		}
 	}
 }
