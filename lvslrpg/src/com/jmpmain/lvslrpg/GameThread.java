@@ -80,6 +80,7 @@ public class GameThread extends Thread
 	
 	//Options screen ui elements.
 	private Spinner controlsSpinner;
+	private Button audioButton;
 	
 	//Menu screen ui elements.
 	private Button continueButton;
@@ -99,6 +100,8 @@ public class GameThread extends Thread
 	}
 	
 	public Controls gameControls;
+	
+	public static boolean SoundOn;
 	
 	public int startTouchX;
 	public int startTouchY;
@@ -131,6 +134,7 @@ public class GameThread extends Thread
 		instance = this;
 		
 		gameControls = Controls.Button_Static;
+		SoundOn = true;
 		
 		updateCallCount = 0;
 		ups = 0;
@@ -175,6 +179,12 @@ public class GameThread extends Thread
 		// Apply the adapter to the spinner
 		controlsSpinner.setAdapter(adapter);
 		controlsSpinner.setOnItemSelectedListener(this);
+		controlsSpinner.setId(4);
+		
+		audioButton = new Button(MainActivity.context);
+		audioButton.setOnClickListener(this);
+		audioButton.setText("Sound On");
+		audioButton.setId(5);
 		
 		continueButton = new Button(MainActivity.context);
 		continueButton.setOnClickListener(this);
@@ -197,6 +207,7 @@ public class GameThread extends Thread
 		startButton.setTypeface(pixelFont);
 		optionsButton.setTypeface(pixelFont);
 		continueButton.setTypeface(pixelFont);
+		audioButton.setTypeface(pixelFont);
 		
 		setRunning(false);
 	}
@@ -304,6 +315,11 @@ public class GameThread extends Thread
 		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		 			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		 			uiLayout.addView(controlsSpinner, params);
+		 			
+		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.BELOW, controlsSpinner.getId());
+		 			uiLayout.addView(audioButton, params);
 		 		}
 		 		else if(currentScreen == Screen.MENU){
 		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -395,6 +411,9 @@ public class GameThread extends Thread
 						
 						if(items.get(i).type == ItemType.Potion){
 							line.addHealth(5);
+							AudioPlayer.playSound(AudioPlayer.potion);
+						}else if(items.get(i).type == ItemType.Coin){
+							AudioPlayer.playSound(AudioPlayer.coin);
 						}
 						
 						items.remove(i);
@@ -405,6 +424,7 @@ public class GameThread extends Thread
 				//Check if player entered city.
 				if(new Rect((int)line.getX()*map.tileSize - 16, (int)line.getY()*map.tileSize - 16, (int)line.getX()*map.tileSize+16, (int)line.getY()*map.tileSize+16).intersect(
 						new Rect(map.city.x, map.city.y, map.city.x + 64, map.city.y + 64))){
+					AudioPlayer.playSound(AudioPlayer.city);
 					setScreen(Screen.MENU);
 				}
 				
@@ -511,6 +531,16 @@ public class GameThread extends Thread
 				setScreen(Screen.BATTLE);
 			}else if(v == optionsButton){
 				setScreen(Screen.OPTIONS);
+			}
+		}
+		else if(currentScreen == Screen.OPTIONS){
+			if(v == audioButton){
+				SoundOn = !SoundOn;
+				if(SoundOn){
+					audioButton.setText("Sound On");
+				}else{
+					audioButton.setText("Sound Off");
+				}
 			}
 		}
 		else if(currentScreen == Screen.MENU){

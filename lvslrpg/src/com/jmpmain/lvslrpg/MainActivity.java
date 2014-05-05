@@ -56,6 +56,9 @@ public class MainActivity extends Activity {
 		((SensorManager)getSystemService(Context.SENSOR_SERVICE)).registerListener(
 			surface.thread, ((SensorManager)getSystemService(Context.SENSOR_SERVICE))
 			.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0), SensorManager.SENSOR_DELAY_NORMAL);
+		
+		AudioPlayer.context = this;
+		AudioPlayer.initSounds();
 	}
 
 	@Override

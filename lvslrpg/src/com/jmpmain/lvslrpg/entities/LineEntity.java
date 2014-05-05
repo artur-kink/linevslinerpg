@@ -1,5 +1,6 @@
 package com.jmpmain.lvslrpg.entities;
 
+import com.jmpmain.lvslrpg.AudioPlayer;
 import com.jmpmain.lvslrpg.GameSurface;
 import com.jmpmain.lvslrpg.GameThread;
 import com.jmpmain.lvslrpg.Map;
@@ -169,6 +170,7 @@ public class LineEntity extends Entity {
 			
 			if(!isEmpty(x, y)){
 				health--;
+				AudioPlayer.playSound(AudioPlayer.hit);
 				for(int i = 0; i < 5; i++){
 					GameThread.instance.particles.add(new Blood((int)x*map.tileSize, (int)y*map.tileSize, time));
 				}
