@@ -14,6 +14,7 @@ import com.jmpmain.lvslrpg.particles.Particle;
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -21,6 +22,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -75,10 +77,12 @@ public class GameThread extends Thread
 	public Screen currentScreen;
 	
 	//Start screen ui elements.
+	private RelativeLayout startScreen;
 	private Button startButton;
 	private Button optionsButton;
 	
 	//Options screen ui elements.
+	private RelativeLayout optionsScreen;
 	private Spinner controlsSpinner;
 	private Button audioButton;
 	
@@ -161,30 +165,29 @@ public class GameThread extends Thread
 	    }
 	    adView.setId(1);
 		
-		startButton = new Button(MainActivity.context);
-		startButton.setOnClickListener(this);
-		startButton.setText("Start");
-		startButton.setId(2);
+	    LayoutInflater inflater = (LayoutInflater)MainActivity.context.getSystemService(MainActivity.context.LAYOUT_INFLATER_SERVICE );
+	    startScreen = (RelativeLayout) inflater.inflate(R.layout.start_screen, uiLayout);
+	    
+	    startButton = (Button) startScreen.findViewById(R.id.start_button);
+	    startButton.setOnClickListener(this);
 		
-		optionsButton = new Button(MainActivity.context);
+		optionsButton = (Button) startScreen.findViewById(R.id.options_button);
 		optionsButton.setOnClickListener(this);
-		optionsButton.setText("Options");
-		optionsButton.setId(3);
 		
-		controlsSpinner = new Spinner(MainActivity.context);
-		controlsSpinner.setBackgroundColor(Color.WHITE);
+		
+		optionsScreen = (RelativeLayout) inflater.inflate(R.layout.options_screen, uiLayout);
+		
+		controlsSpinner = (Spinner) optionsScreen.findViewById(R.id.controls_spinner);
 		ArrayAdapter<CharSequence> adapter =
 				ArrayAdapter.createFromResource(MainActivity.context, R.array.ControlsOptions, android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		// Apply the adapter to the spinner
 		controlsSpinner.setAdapter(adapter);
 		controlsSpinner.setOnItemSelectedListener(this);
-		controlsSpinner.setId(4);
 		
-		audioButton = new Button(MainActivity.context);
+		audioButton = (Button) optionsScreen.findViewById(R.id.audio_button);
 		audioButton.setOnClickListener(this);
-		audioButton.setText("Sound On");
-		audioButton.setId(5);
+		
 		
 		continueButton = new Button(MainActivity.context);
 		continueButton.setOnClickListener(this);
@@ -294,32 +297,16 @@ public class GameThread extends Thread
 		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		 			uiLayout.addView(adView, params);
 		 			
-		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		 			uiLayout.addView(startButton, params);
-		 			
-		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		 			params.addRule(RelativeLayout.BELOW, startButton.getId());
-		 			uiLayout.addView(optionsButton, params);
-		 			
+		 			uiLayout.addView(startScreen, new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
 		 		}
 		 		else if(currentScreen == Screen.OPTIONS){
+		 			
 		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		 			uiLayout.addView(adView, params);
 		 			
-		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		 			uiLayout.addView(controlsSpinner, params);
-		 			
-		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		 			params.addRule(RelativeLayout.BELOW, controlsSpinner.getId());
-		 			uiLayout.addView(audioButton, params);
+		 			uiLayout.addView(optionsScreen, new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
 		 		}
 		 		else if(currentScreen == Screen.MENU){
 		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -538,6 +525,7 @@ public class GameThread extends Thread
 				SoundOn = !SoundOn;
 				if(SoundOn){
 					audioButton.setText("Sound On");
+					AudioPlayer.playSound(AudioPlayer.coin);
 				}else{
 					audioButton.setText("Sound Off");
 				}

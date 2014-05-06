@@ -17,6 +17,7 @@ public class AudioPlayer {
 
 	public static int city;
 	public static int coin;
+	public static int dead;
 	public static int hit;
 	public static int potion;
 
@@ -29,6 +30,7 @@ public class AudioPlayer {
 
 	     city = soundPool.load(context, R.raw.city, 1);
 	     coin = soundPool.load(context, R.raw.coin, 1);
+	     dead = soundPool.load(context, R.raw.dead, 1);
 	     hit = soundPool.load(context, R.raw.hit, 1);
 	     potion = soundPool.load(context, R.raw.potion, 1);
 	}

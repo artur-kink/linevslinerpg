@@ -181,6 +181,7 @@ public class LineEntity extends Entity {
 			
 		}
 		if(health <= 0){
+			AudioPlayer.playSound(AudioPlayer.dead);
 			dead = true;
 		}
 	}
