@@ -13,6 +13,7 @@ import com.jmpmain.lvslrpg.entities.Item.ItemType;
 import com.jmpmain.lvslrpg.particles.Particle;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -98,10 +99,19 @@ public class GameThread extends Thread
 	public boolean running;
 	
 	public enum Controls{
-		Button_Static,
-		Button_Clockwise,
-		Swipe,
-		Tilt
+		Button_Static(0),
+		Button_Clockwise(1),
+		Swipe(2),
+		Tilt(3);
+		
+		private final int value;
+	    private Controls(int value) {
+	        this.value = value;
+	    }
+
+	    public int getValue() {
+	        return value;
+	    }
 	}
 	
 	public Controls gameControls;
@@ -138,8 +148,9 @@ public class GameThread extends Thread
 		
 		instance = this;
 		
-		gameControls = Controls.Button_Static;
-		SoundOn = true;
+		SharedPreferences settings = MainActivity.context.getSharedPreferences("settings", 0);
+		SoundOn = settings.getBoolean("sound", true);
+		gameControls = Controls.values()[settings.getInt("controls", 0)];
 		
 		updateCallCount = 0;
 		ups = 0;
@@ -183,10 +194,14 @@ public class GameThread extends Thread
 				MainActivity.context.getResources().getStringArray(R.array.ControlsOptions));
 		// Apply the adapter to the spinner
 		controlsSpinner.setAdapter(adapter);
+		controlsSpinner.setSelection(gameControls.getValue());
 		controlsSpinner.setOnItemSelectedListener(this);
 		
 		audioButton = (Button) optionsScreen.findViewById(R.id.audio_button);
 		audioButton.setOnClickListener(this);
+		if(!SoundOn){
+			audioButton.setText("Sound Off");
+		}
 		
 		
 		continueButton = new Button(MainActivity.context);
@@ -437,6 +452,17 @@ public class GameThread extends Thread
 		}
 	}
 
+	/**
+	 * Save game settings.
+	 */
+	private void saveSettings(){
+		SharedPreferences settings = MainActivity.context.getSharedPreferences("settings", 0);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putBoolean("sound", SoundOn);
+		editor.putInt("controls", gameControls.getValue());
+		editor.commit();
+	}
+	
 	/*************************
 	 * Input Methods.
 	 ************************/
@@ -528,6 +554,7 @@ public class GameThread extends Thread
 				}else{
 					audioButton.setText("Sound Off");
 				}
+				saveSettings();
 			}
 		}
 		else if(currentScreen == Screen.MENU){
@@ -591,6 +618,7 @@ public class GameThread extends Thread
 		}else if(id == 3){
 			gameControls = Controls.Tilt;
 		}
+		saveSettings();
 	}
 
 	@Override
