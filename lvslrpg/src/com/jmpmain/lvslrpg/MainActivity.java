@@ -2,6 +2,7 @@ package com.jmpmain.lvslrpg;
 
 import com.google.android.gms.ads.*;
 
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -25,6 +26,8 @@ public class MainActivity extends Activity {
 	
 	public static Context context;
 	
+	public static Typeface pixelFont;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,6 +39,7 @@ public class MainActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
+		pixelFont = Typeface.createFromAsset(MainActivity.context.getAssets(), "font/pixelart.ttf");
 		
 		//Create frame layout to contain game surface and ui layout.
 		FrameLayout baseLayout = new FrameLayout(this);

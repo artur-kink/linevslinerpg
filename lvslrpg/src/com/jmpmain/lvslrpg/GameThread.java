@@ -1,5 +1,6 @@
 package com.jmpmain.lvslrpg;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import com.google.android.gms.ads.AdRequest;
@@ -178,9 +179,8 @@ public class GameThread extends Thread
 		optionsScreen = (RelativeLayout) inflater.inflate(R.layout.options_screen, uiLayout);
 		
 		controlsSpinner = (Spinner) optionsScreen.findViewById(R.id.controls_spinner);
-		ArrayAdapter<CharSequence> adapter =
-				ArrayAdapter.createFromResource(MainActivity.context, R.array.ControlsOptions, android.R.layout.simple_spinner_item);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		OptionsAdapter adapter = new OptionsAdapter(MainActivity.context, R.layout.spinner_item_layout,
+				MainActivity.context.getResources().getStringArray(R.array.ControlsOptions));
 		// Apply the adapter to the spinner
 		controlsSpinner.setAdapter(adapter);
 		controlsSpinner.setOnItemSelectedListener(this);
@@ -206,11 +206,10 @@ public class GameThread extends Thread
 		rightButton.setScaleType(ScaleType.FIT_CENTER);
 		rightButton.setBackgroundColor(Color.TRANSPARENT);
 		
-		Typeface pixelFont = Typeface.createFromAsset(MainActivity.context.getAssets(), "font/pixelart.ttf");
-		startButton.setTypeface(pixelFont);
-		optionsButton.setTypeface(pixelFont);
-		continueButton.setTypeface(pixelFont);
-		audioButton.setTypeface(pixelFont);
+		startButton.setTypeface(MainActivity.pixelFont);
+		optionsButton.setTypeface(MainActivity.pixelFont);
+		continueButton.setTypeface(MainActivity.pixelFont);
+		audioButton.setTypeface(MainActivity.pixelFont);
 		
 		setRunning(false);
 	}
