@@ -53,8 +53,8 @@ public class AILineEntity extends LineEntity {
 	@Override
 	public void update(long time) {
 		
-		float tx = x + xVelocity;
-		float ty = y + yVelocity;
+		float tx = x + getTileXVelocity(lastXCheck, lastYCheck);;
+		float ty = y + getTileYVelocity(lastXCheck, lastYCheck);;
 		if((int)tx != lastXCheck || (int)ty != lastYCheck){
 			boolean turned = false;
 			for(int i = 1; i < 4; i++){

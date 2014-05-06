@@ -434,12 +434,13 @@ public class GameThread extends Thread
 		 		}
 		 		else if(currentScreen == Screen.BATTLE){
 		 			if(gameControls == Controls.Button_Clockwise || gameControls == Controls.Button_Static){
-			 			LayoutParams params = new LayoutParams(150, 150);
+		 				int buttonSize = (int) Math.max(32, ((float)gameSurface.getWidth())*0.125);
+			 			LayoutParams params = new LayoutParams(buttonSize, buttonSize);
 			 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			 			uiLayout.addView(rightButton, params);
 			 			
-			 			params = new LayoutParams(150, 150);
+			 			params = new LayoutParams(buttonSize, buttonSize);
 			 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			 			uiLayout.addView(leftButton, params);

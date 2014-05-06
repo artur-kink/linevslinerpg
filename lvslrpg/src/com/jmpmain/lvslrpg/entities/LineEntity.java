@@ -54,11 +54,38 @@ public class LineEntity extends Entity {
 		return xVelocity;
 	}
 	
+	public float getTileXVelocity(int x, int y){
+		return xVelocity*getTileVelocity(x, y);
+	}
+	
 	/** Vertical velocity. */
 	protected float yVelocity;
 	
 	public float getYVelocity(){
 		return yVelocity;
+	}
+	
+	public float getTileYVelocity(int x, int y){
+		return yVelocity*getTileVelocity(x, y);
+	}
+	
+	private float getTileVelocity(int x, int y){
+		
+		if(x < 0 || y < 0 || x >= map.width || y >= map.height)
+			return 1;
+		
+		TileType tile = map.getTile(x, y);
+		switch(tile){
+			case Mountain:
+				return 0.6f;
+			case Sand:
+				return 0.9f;
+			case Water:
+				return 0.5f;
+			default:
+				return 1.0f;
+			
+		}
 	}
 	
 	/** Last x position where line was drawn. */
@@ -160,8 +187,8 @@ public class LineEntity extends Entity {
 		}
 		
 		//Update entity position.
-		x += xVelocity;
-		y += yVelocity;
+		x += getTileXVelocity(lastXCheck, lastYCheck);
+		y += getTileYVelocity(lastXCheck, lastYCheck);
 			
 		//If position has changed check for collision.
 		if(lastXCheck != (int)x || lastYCheck != (int)y){
@@ -177,7 +204,7 @@ public class LineEntity extends Entity {
 			}
 			
 			if(x >= 0 && y >= 0 && x < map.width && y < map.height)
-				map.setTile(lastXCheck, lastYCheck, TileType.Entity);
+				map.setTileDamage(lastXCheck, lastYCheck, true);
 			
 		}
 		if(health <= 0){
@@ -197,9 +224,7 @@ public class LineEntity extends Entity {
 		if(x2 < 0 || y2 < 0 || x2 >= map.width || y2 >= map.height)
 			return false;
 		
-		//Check if pixel clear.
-		TileType type = map.getTile((int)x2, (int)y2);
-		return type != TileType.Entity && type != TileType.Water;
+		return !map.getDamage((int)x2, (int)y2);
 	}
 	
 	@Override

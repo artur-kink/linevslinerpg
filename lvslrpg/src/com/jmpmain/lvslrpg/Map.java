@@ -10,7 +10,6 @@ public class Map {
 
 	public enum TileType{
 		Empty,
-		Entity,
 		Ground,
 		Water,
 		Sand,
@@ -19,6 +18,8 @@ public class Map {
 	
 	/** Tile type array. The map array. */
 	private TileType map[][];
+	
+	private boolean damageMap[][];
 	
 	/** Map width in tiles. */
 	public int width;
@@ -46,9 +47,12 @@ public class Map {
 		width = w/t;
 		height = h/t;
 		map = new TileType[height][width];
+		damageMap = new boolean[height][width];
+		
 		for(int r = 0; r < height; r++){
 			for(int c = 0; c < width; c++){
 				map[r][c] = TileType.Empty;
+				damageMap[r][c] = false;
 			}
 		}
 	}
@@ -57,8 +61,19 @@ public class Map {
 		return map[y][x];
 	}
 	
+	public boolean getDamage(int x, int y){
+		return damageMap[y][x];
+	}
+	
 	public void setTile(int x, int y, TileType type) {
 		map[y][x] = type;
+		if(type == TileType.Water){
+			setTileDamage(x, y, true);
+		}
+	}
+	
+	public void setTileDamage(int x, int y, boolean damage){
+		damageMap[y][x] = damage;
 	}
 	
 }
