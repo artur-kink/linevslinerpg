@@ -89,6 +89,7 @@ public class GameThread extends Thread
 	private Button audioButton;
 	
 	//Menu screen ui elements.
+	private RelativeLayout menuScreen;
 	private Button continueButton;
 	
 	//Battle screen ui elements.
@@ -203,10 +204,9 @@ public class GameThread extends Thread
 			audioButton.setText("Sound Off");
 		}
 		
-		
-		continueButton = new Button(MainActivity.context);
+		menuScreen = (RelativeLayout) inflater.inflate(R.layout.menu_screen, uiLayout);
+		continueButton = (Button) menuScreen.findViewById(R.id.continue_button);
 		continueButton.setOnClickListener(this);
-		continueButton.setText("Continue");
 		
 		leftButton = new ImageButton(MainActivity.context);
 		leftButton.setOnClickListener(this);
@@ -290,65 +290,6 @@ public class GameThread extends Thread
 	public void initGame(){
 		resetGame();
 		setScreen(Screen.START);
-	}
-	
-	/**
-	 * Change screens.
-	 * @param screen Screen to change to.
-	 */
-	public void setScreen(Screen screen){
-		currentScreen = screen;
-		
-		//Make sure running on UI thread.
-		((MainActivity)MainActivity.context).runOnUiThread(new Runnable() {
-			 @Override
-		     public void run() {
-		    	 uiLayout.removeAllViews();
-		 		
-		 		if(currentScreen == Screen.START){
-		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		 			uiLayout.addView(adView, params);
-		 			
-		 			uiLayout.addView(startScreen, new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-		 		}
-		 		else if(currentScreen == Screen.OPTIONS){
-		 			
-		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		 			uiLayout.addView(adView, params);
-		 			
-		 			uiLayout.addView(optionsScreen, new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-		 		}
-		 		else if(currentScreen == Screen.MENU){
-		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		 			uiLayout.addView(adView, params);
-		 			
-		 			params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		 			uiLayout.addView(continueButton, params);
-		 		}
-		 		else if(currentScreen == Screen.BATTLE){
-		 			if(gameControls == Controls.Button_Clockwise || gameControls == Controls.Button_Static){
-			 			LayoutParams params = new LayoutParams(150, 150);
-			 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			 			uiLayout.addView(rightButton, params);
-			 			
-			 			params = new LayoutParams(150, 150);
-			 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			 			uiLayout.addView(leftButton, params);
-			 			setTurnButtons();
-		 			}
-		 		}
-		    }
-		});
 	}
 	
 	/**
@@ -452,6 +393,63 @@ public class GameThread extends Thread
 		}
 	}
 
+
+	/**
+	 * Change screens.
+	 * @param screen Screen to change to.
+	 */
+	public void setScreen(Screen screen){
+		currentScreen = screen;
+		
+		//Make sure running on UI thread.
+		((MainActivity)MainActivity.context).runOnUiThread(new Runnable() {
+			 @Override
+		     public void run() {
+		    	 uiLayout.removeAllViews();
+		 		
+		 		if(currentScreen == Screen.START){
+		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		 			uiLayout.addView(adView, params);
+		 			
+		 			uiLayout.addView(startScreen, new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+		 		}
+		 		else if(currentScreen == Screen.OPTIONS){
+		 			
+		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		 			uiLayout.addView(adView, params);
+		 			
+		 			uiLayout.addView(optionsScreen, new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+		 		}
+		 		else if(currentScreen == Screen.MENU){
+		 			LayoutParams params = new LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		 			uiLayout.addView(adView, params);
+		 			
+		 			uiLayout.addView(menuScreen, new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+		 		}
+		 		else if(currentScreen == Screen.BATTLE){
+		 			if(gameControls == Controls.Button_Clockwise || gameControls == Controls.Button_Static){
+			 			LayoutParams params = new LayoutParams(150, 150);
+			 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 			uiLayout.addView(rightButton, params);
+			 			
+			 			params = new LayoutParams(150, 150);
+			 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 			uiLayout.addView(leftButton, params);
+			 			setTurnButtons();
+		 			}
+		 		}
+		    }
+		});
+	}
+	
 	/**
 	 * Save game settings.
 	 */
