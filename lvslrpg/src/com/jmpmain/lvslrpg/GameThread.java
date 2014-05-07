@@ -81,6 +81,7 @@ public class GameThread extends Thread
 	//Start screen ui elements.
 	private RelativeLayout startScreen;
 	private Button startButton;
+	private Button resumeButton;
 	private Button optionsButton;
 	
 	//Options screen ui elements.
@@ -136,6 +137,7 @@ public class GameThread extends Thread
 	
 	public Vector<Particle> particles;
 	
+	public boolean gameExists;
 	public int coinCounter;
 	
 	/** View for ads. */
@@ -186,6 +188,9 @@ public class GameThread extends Thread
 	    startButton = (Button) startScreen.findViewById(R.id.start_button);
 	    startButton.setOnClickListener(this);
 		
+	    resumeButton = (Button) startScreen.findViewById(R.id.resume_button);
+	    resumeButton.setOnClickListener(this);
+	    
 		optionsButton = (Button) startScreen.findViewById(R.id.options_button);
 		optionsButton.setOnClickListener(this);
 		
@@ -224,10 +229,12 @@ public class GameThread extends Thread
 		rightButton.setBackgroundColor(Color.TRANSPARENT);
 		
 		startButton.setTypeface(MainActivity.pixelFont);
+		resumeButton.setTypeface(MainActivity.pixelFont);
 		optionsButton.setTypeface(MainActivity.pixelFont);
 		continueButton.setTypeface(MainActivity.pixelFont);
 		audioButton.setTypeface(MainActivity.pixelFont);
 		
+		gameExists = false;
 		setRunning(false);
 	}
 	
@@ -252,6 +259,7 @@ public class GameThread extends Thread
 	 * Creates new level.
 	 */
 	public void newLevel(){
+		gameExists = true;
 		level++;
 		
 		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 14);
@@ -300,7 +308,6 @@ public class GameThread extends Thread
 	 * and ready to be used.
 	 */
 	public void initGame(){
-		resetGame();
 		setScreen(Screen.START);
 	}
 	
@@ -388,6 +395,7 @@ public class GameThread extends Thread
 				}
 				
 				if(line.dead){
+					gameExists = false;
 					setScreen(Screen.START);
 				}
 				
@@ -425,6 +433,12 @@ public class GameThread extends Thread
 		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		 			uiLayout.addView(adView, params);
+		 			
+		 			if(!gameExists){
+		 				resumeButton.setVisibility(View.INVISIBLE);
+		 			}else{
+		 				resumeButton.setVisibility(View.VISIBLE);
+		 			}
 		 			
 		 			uiLayout.addView(startScreen, new LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
 		 		}
@@ -555,6 +569,8 @@ public class GameThread extends Thread
 				setScreen(Screen.BATTLE);
 			}else if(v == optionsButton){
 				setScreen(Screen.OPTIONS);
+			}else if(v == resumeButton){
+				setScreen(Screen.BATTLE);
 			}
 		}
 		else if(currentScreen == Screen.OPTIONS){

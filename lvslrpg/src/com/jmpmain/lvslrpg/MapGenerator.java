@@ -111,7 +111,7 @@ public class MapGenerator {
 		
 		Paint outline = new Paint();
 		outline.setStrokeWidth(0);
-		outline.setARGB(20, 0, 0, 0);
+		outline.setARGB(10, 0, 0, 0);
 		
 		//Draw map.
 		DrawMap(map, theme);

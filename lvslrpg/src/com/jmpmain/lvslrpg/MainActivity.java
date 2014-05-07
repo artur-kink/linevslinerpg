@@ -1,6 +1,7 @@
 package com.jmpmain.lvslrpg;
 
 import com.google.android.gms.ads.*;
+import com.jmpmain.lvslrpg.GameThread.Screen;
 
 import android.graphics.Typeface;
 import android.hardware.Sensor;
@@ -68,6 +69,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onPause(){
 		super.onPause();
+		thread.setScreen(Screen.START);
 	}
 	
 	@Override
