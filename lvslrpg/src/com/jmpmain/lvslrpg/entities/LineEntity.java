@@ -243,11 +243,11 @@ public class LineEntity extends Entity {
 							(int)(x*map.tileSize)- 16 + 32, (int)(y*map.tileSize) - 16 + 32), p);
 			
 			//Draw health bar.
-			p.setARGB(64, 255, 0, 0);
+			p.setARGB(50, 255, 0, 0);
 			//Health bar background.
 			canvas.drawRect(new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 24,
 					(int)(x*map.tileSize) + 16, (int)(y*map.tileSize) - 16), p);
-			
+			p.setARGB(150, 255, 0, 0);
 			//Foreground actual health.
 			canvas.drawRect(new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 24,
 					(int)(x*map.tileSize) - 16 + (int)(32*((float)health/(float)maxHealth)), (int)(y*map.tileSize) - 16), p);

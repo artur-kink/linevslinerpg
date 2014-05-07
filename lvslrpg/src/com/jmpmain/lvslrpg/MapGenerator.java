@@ -66,9 +66,6 @@ public class MapGenerator {
 		else if(theme == MapTheme.Desert)
 			CreateGround(map, TileType.Sand);
 			
-		//Set city location.
-		map.city = new Point(width/2, 100);
-		
 		//Create mountains
 		for(int i = 0; i < Math.random()*5; i++){
 			CreatePatch(map, theme, TileType.Mountain, 12, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
@@ -87,9 +84,29 @@ public class MapGenerator {
 		//Set player start
 		map.playerStart = new Point(map.width/2, map.height - 5);
 		
+		//Set city location.
+		{
+			int x = 0;
+			int y = 0;
+			do{
+				x = (int)((map.width*0.9)*Math.random());
+				y = (int)(15*Math.random());
+			}while(map.getDamage(x, y) == true);
+			map.city = new Point(x*map.tileSize, y*map.tileSize);
+		}
+		
 		//Create enemy starting positions.
 		for(int i = 0; i <= Math.random()*5; i++){
-			map.enemyStarts.add(new Point((int)(map.width*Math.random()), (int) ((map.height/2)*Math.random())));
+			//Ensure enemy not spawned in water
+			int x = 0;
+			int y = 0;
+			do{
+				x = (int)(map.width*Math.random());
+				y = (int)((map.height/2)*Math.random());
+			}
+			while(map.getDamage(x, y) == true);
+			
+			map.enemyStarts.add(new Point(x, y));
 		}
 		
 		Paint outline = new Paint();

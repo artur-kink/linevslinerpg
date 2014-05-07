@@ -265,7 +265,7 @@ public class GameThread extends Thread
 		
 		for(int i = 0; i < map.enemyStarts.size(); i++){
 			LineEntity enemy = new AILineEntity(map.enemyStarts.get(i).x, map.enemyStarts.get(i).y);
-			enemy.setColor(128, (int)(Math.random()*255), (int)(Math.random()*255), (int)(Math.random()*255));
+			enemy.setColor(155, Math.max(128, (int)(Math.random()*255)), (int)(Math.random()*255), Math.max(64, (int)(Math.random()*255)));
 			enemy.setDirection(0, 1);
 			enemy.setMap(map);
 			enemy.setMaxHealth(enemy.maxHealth + level);
@@ -274,10 +274,19 @@ public class GameThread extends Thread
 		}
 		
 		items = new Vector<Item>();
-		for(int i = 0; i < 10; i++){
-			int x = (int)(Math.random()*map.width*map.tileSize);
-			int y = (int)(Math.random()*map.height*map.tileSize);
-			if(Math.random() > 0.5)
+		int numItems = (int) Math.max(4, Math.random()*10);
+		for(int i = 0; i < numItems; i++){
+			int x = 0;
+			int y = 0;
+			//Ensure item is reachable
+			do{
+				x = (int)(Math.random()*(map.width*0.9) + map.width*0.05);
+				y = (int)(Math.random()*(map.height*0.9) + map.height*0.05);
+			}while(map.getDamage(x, y) == true);
+			x = x*map.tileSize;
+			y = y*map.tileSize;
+					
+			if(Math.random() >= 0.25)
 				items.add(new Item(ItemType.Coin, x, y));
 			else
 				items.add(new Item(ItemType.Potion, x, y));
