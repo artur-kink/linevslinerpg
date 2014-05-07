@@ -122,7 +122,7 @@ public class LineEntity extends Entity {
 		setY(pY);
 		lastXDraw = pX;
 		lastYDraw = pY;
-		health = maxHealth = 20;
+		health = maxHealth = 5;
 		velocity = 0.50f;
 		xVelocity = yVelocity = 0;
 		dead = false;
@@ -245,12 +245,12 @@ public class LineEntity extends Entity {
 			//Draw health bar.
 			p.setARGB(64, 255, 0, 0);
 			//Health bar background.
-			canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 24,
-					(int)(x*map.tileSize) + 32, (int)(y*map.tileSize) - 16), p);
+			canvas.drawRect(new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 24,
+					(int)(x*map.tileSize) + 16, (int)(y*map.tileSize) - 16), p);
 			
 			//Foreground actual health.
-			canvas.drawRect(new Rect((int)(x*map.tileSize), (int)(y*map.tileSize) - 24,
-					(int)(x*map.tileSize) + (int)(32*((float)health/(float)maxHealth)), (int)(y*map.tileSize) - 16), p);
+			canvas.drawRect(new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 24,
+					(int)(x*map.tileSize) - 16 + (int)(32*((float)health/(float)maxHealth)), (int)(y*map.tileSize) - 16), p);
 		}
 	}
 	

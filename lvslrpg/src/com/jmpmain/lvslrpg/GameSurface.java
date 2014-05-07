@@ -117,6 +117,14 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 			thread.particles.get(i).draw(canvas);
 		}
 		
+		canvas.drawBitmap(coin, 0, 0, paint);
+		paint.setTextSize(32);
+		paint.setTypeface(MainActivity.pixelFont);
+		paint.setARGB(255, 255, 217, 00);
+		canvas.drawText("Coins: " + thread.coinCounter, 32, 32, paint);
+		
+		canvas.drawText("Level: " + thread.level, 32 + paint.measureText("Coins: " + thread.coinCounter + " "), 32, paint);
+		
 		//Debug draw.
 		if(BuildConfig.DEBUG){
 			
@@ -130,7 +138,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 			
 			//Draw fps
 			paint.setTextSize(20);
-			paint.setARGB(255, 255, 255, 255);
+			paint.setARGB(128, 255, 0, 0);
 			canvas.drawText("FPS: " + fps, 20, 20, paint);
 			
 			//Draw ups

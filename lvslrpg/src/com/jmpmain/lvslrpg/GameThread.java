@@ -136,6 +136,8 @@ public class GameThread extends Thread
 	
 	public Vector<Particle> particles;
 	
+	public int coinCounter;
+	
 	/** View for ads. */
 	private AdView adView;
 	
@@ -239,6 +241,7 @@ public class GameThread extends Thread
 		line.setColor(128, 0, 255, 0);
 		
 		level = 0;
+		coinCounter = 0;
 		
 		setTurnButtons();
 		
@@ -352,10 +355,11 @@ public class GameThread extends Thread
 							new Rect(items.get(i).x, items.get(i).y, items.get(i).x + items.get(i).width, items.get(i).y + items.get(i).height))){
 						
 						if(items.get(i).type == ItemType.Potion){
-							line.addHealth(5);
+							line.addHealth(3);
 							AudioPlayer.playSound(AudioPlayer.potion);
 						}else if(items.get(i).type == ItemType.Coin){
 							AudioPlayer.playSound(AudioPlayer.coin);
+							coinCounter++;
 						}
 						
 						items.remove(i);
