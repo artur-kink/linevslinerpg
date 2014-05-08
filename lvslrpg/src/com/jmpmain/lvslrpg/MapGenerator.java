@@ -57,9 +57,11 @@ public class MapGenerator {
 		
 		MapTheme theme = MapTheme.Temperate;
 		
-		if(Math.random() > 0.7)
+		if(Math.random() > 0.6)
 			theme = MapTheme.Desert;
 		
+		//Set player start
+			map.playerStart = new Point(map.width/2, map.height - 5);
 		
 		if(theme == MapTheme.Temperate)
 			CreateGround(map, TileType.Ground);
@@ -67,22 +69,28 @@ public class MapGenerator {
 			CreateGround(map, TileType.Sand);
 			
 		//Create mountains
-		for(int i = 0; i < Math.random()*5; i++){
+		int numMountains = Math.max(1, (int) (Math.random()*6));
+		for(int i = 0; i < numMountains; i++){
 			CreatePatch(map, theme, TileType.Mountain, 12, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
 		}
 		
 		//Create lakes
-		for(int i = 0; i < Math.random()*5; i++){
-			CreatePatch(map, theme, TileType.Water, 7, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+		int numLakes = Math.max(1, (int) (Math.random()*6));
+		for(int i = 0; i < numLakes; i++){
+			int x = 0;
+			int y = 0;
+			//Try not to make any lakes around player start.
+			do{
+				x = (int)(Math.random()*map.width);
+				y = (int)(Math.random()*map.height);
+			}while(Math.sqrt(Math.pow(x - map.playerStart.x, 2) +  Math.pow(y - map.playerStart.y, 2)) <= 10);
+			CreatePatch(map, theme, TileType.Water, 7, x, y);
 		}
 		
 		if(theme == MapTheme.Temperate)
 			CreateBorder(map, TileType.Water, TileType.Sand, 3);
 		else if(theme == MapTheme.Desert)
 			CreateBorder(map, TileType.Water, TileType.Ground, 2);
-		
-		//Set player start
-		map.playerStart = new Point(map.width/2, map.height - 5);
 		
 		//Set city location.
 		{

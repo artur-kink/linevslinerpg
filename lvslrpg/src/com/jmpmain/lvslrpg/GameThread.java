@@ -153,13 +153,17 @@ public class GameThread extends Thread
 	
 	public GameThread(SurfaceHolder holder, GameSurface surface){
 		gameSurface = surface;
-		surfaceHolder = holder; 
-		
+		surfaceHolder = holder;
+
 		instance = this;
 		
 		SharedPreferences settings = MainActivity.context.getSharedPreferences("settings", 0);
 		SoundOn = settings.getBoolean("sound", true);
-		gameControls = Controls.values()[settings.getInt("controls", 0)];
+		if(BuildConfig.DEBUG)
+			gameControls = Controls.values()[settings.getInt("controls", 0)];
+		else
+			gameControls = Controls.values()[settings.getInt("controls", 1)];
+		
 		MainActivity.registerred = settings.getBoolean("registerred", false);
 		if(MainActivity.registerred)
 			MainActivity.context.loggedIn();
@@ -409,6 +413,10 @@ public class GameThread extends Thread
 						}else if(items.get(i).type == ItemType.Coin){
 							AudioPlayer.playSound(AudioPlayer.coin);
 							coinCounter++;
+							
+							if(coinCounter == 100){
+								MainActivity.context.giveAchievement(R.string.achievement_bag_o_coin);
+							}
 						}
 						
 						items.remove(i);

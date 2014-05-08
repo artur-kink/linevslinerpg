@@ -3,25 +3,52 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     
-    <Button
-        android:id="@+id/start_button"
+    <LinearLayout
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
+        android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start"
+        android:layout_height="wrap_content">
+     
+    <Button
+        android:id="@+id/start_button"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:text="New Game"
 		style="@style/menu_button"
 		android:background="@drawable/menu_button"/>
     
     <Button
-        android:id="@+id/options_button"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:id="@+id/highscores_button"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:text="Highscores"
+        style="@style/menu_button"
+        android:background="@drawable/menu_button"/>
+    
+    <Button
+        android:id="@+id/achievements_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/start_button"
+        android:text="Achievements"
+        style="@style/menu_button"
+        android:background="@drawable/menu_button"/>
+    
+    <Button
+        android:id="@+id/options_button"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:text="Options"
         style="@style/menu_button"
         android:background="@drawable/menu_button"/>
-	
+    
+    <Button
+        android:id="@+id/resume_button"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:text="Resume Game"
+		style="@style/menu_button"
+		android:background="@drawable/menu_button"/>
+    
+	</LinearLayout>
 </RelativeLayout>
