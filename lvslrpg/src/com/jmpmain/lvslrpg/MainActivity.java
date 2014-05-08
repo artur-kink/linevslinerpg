@@ -1,41 +1,46 @@
 package com.jmpmain.lvslrpg;
 
-import com.google.android.gms.ads.*;
-import com.jmpmain.lvslrpg.GameThread.Screen;
-
+import android.content.Context;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.app.Activity;
-import android.content.Context;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+
+import com.google.android.gms.appstate.AppStateManager;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Games;
+import com.google.android.gms.plus.Plus;
+import com.google.example.games.basegameutils.BaseGameActivity;
+import com.jmpmain.lvslrpg.GameThread.Screen;
 
 /**
  * The main activity.
  */
-public class MainActivity extends Activity {
+public class MainActivity extends BaseGameActivity {
 	
 	private GameSurface surface;
 	private GameThread thread;
 	
-	public static Context context;
+	public static MainActivity context;
 	
 	public static Typeface pixelFont;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		//Remove title.
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
 		context = this;
 		
-		//Remove title.
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		//Do not log in on startup.
+		getGameHelper().setConnectOnStart(false);
+		
 		//Set as full screen and set main view to GameSurface.
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -94,5 +99,32 @@ public class MainActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+
+	public boolean loggedIn(){
+		if(!isSignedIn()){
+			beginUserInitiatedSignIn();
+		}
+		return isSignedIn();
+	}
+	
+	public void openAchievements(){
+		if(loggedIn()){
+			startActivityForResult(Games.Achievements.getAchievementsIntent(getApiClient()), 0);
+		}
+	}
+	
+	public void openHighscores(){
+		if(loggedIn()){
+			startActivityForResult(Games.Leaderboards.getLeaderboardIntent(getApiClient(), getResources().getString(R.string.leaderboard)), 1);
+		}
+	}
+	
+	@Override
+	public void onSignInFailed() {
+	}
+
+	@Override
+	public void onSignInSucceeded() {
 	}
 }

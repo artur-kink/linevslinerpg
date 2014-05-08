@@ -6,6 +6,7 @@ import java.util.Vector;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.games.Games;
 
 import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.entities.*;
@@ -82,6 +83,8 @@ public class GameThread extends Thread
 	private RelativeLayout startScreen;
 	private Button startButton;
 	private Button resumeButton;
+	private Button highscoresButton;
+	private Button achievementsButton;
 	private Button optionsButton;
 	
 	//Options screen ui elements.
@@ -191,6 +194,12 @@ public class GameThread extends Thread
 	    resumeButton = (Button) startScreen.findViewById(R.id.resume_button);
 	    resumeButton.setOnClickListener(this);
 	    
+	    highscoresButton = (Button) startScreen.findViewById(R.id.highscores_button);
+	    highscoresButton.setOnClickListener(this);
+	    
+	    achievementsButton = (Button) startScreen.findViewById(R.id.achievements_button);
+	    achievementsButton.setOnClickListener(this);
+	    
 		optionsButton = (Button) startScreen.findViewById(R.id.options_button);
 		optionsButton.setOnClickListener(this);
 		
@@ -231,6 +240,8 @@ public class GameThread extends Thread
 		startButton.setTypeface(MainActivity.pixelFont);
 		resumeButton.setTypeface(MainActivity.pixelFont);
 		optionsButton.setTypeface(MainActivity.pixelFont);
+		highscoresButton.setTypeface(MainActivity.pixelFont);
+		achievementsButton.setTypeface(MainActivity.pixelFont);
 		continueButton.setTypeface(MainActivity.pixelFont);
 		audioButton.setTypeface(MainActivity.pixelFont);
 		
@@ -571,6 +582,10 @@ public class GameThread extends Thread
 				setScreen(Screen.OPTIONS);
 			}else if(v == resumeButton){
 				setScreen(Screen.BATTLE);
+			}else if(v == highscoresButton){
+				((MainActivity)MainActivity.context).openHighscores();
+			}else if(v == achievementsButton){
+				((MainActivity)MainActivity.context).openAchievements();
 			}
 		}
 		else if(currentScreen == Screen.OPTIONS){
