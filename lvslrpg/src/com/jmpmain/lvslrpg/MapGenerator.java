@@ -111,8 +111,7 @@ public class MapGenerator {
 			do{
 				x = (int)(map.width*Math.random());
 				y = (int)((map.height/2)*Math.random());
-			}
-			while(map.getDamage(x, y) == true);
+			}while(map.getDamage(x, y) == true);
 			
 			map.enemyStarts.add(new Point(x, y));
 		}
