@@ -111,6 +111,12 @@ public class MainActivity extends BaseGameActivity {
 		return isSignedIn();
 	}
 	
+	public void giveAchievement(int achievementId){
+		if(registerred && isSignedIn())
+			Games.Achievements.unlock(getApiClient(), getResources().getString(achievementId));
+		
+	}
+	
 	public void submitScore(int scoreId, int score){
 		if(registerred && isSignedIn())
 			Games.Leaderboards.submitScore(getApiClient(), getResources().getString(scoreId), score);

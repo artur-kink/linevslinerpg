@@ -142,6 +142,7 @@ public class GameThread extends Thread
 	
 	public boolean gameExists;
 	public int coinCounter;
+	public int enemiesKilledCounter;
 	
 	/** View for ads. */
 	private AdView adView;
@@ -263,6 +264,7 @@ public class GameThread extends Thread
 		
 		level = 0;
 		coinCounter = 0;
+		enemiesKilledCounter = 0;
 		
 		setTurnButtons();
 		
@@ -275,6 +277,23 @@ public class GameThread extends Thread
 	public void newLevel(){
 		gameExists = true;
 		level++;
+		
+		if(level == 10){
+			MainActivity.context.giveAchievement(R.string.achievement_adventurer);
+		}else if(level == 25){
+			MainActivity.context.giveAchievement(R.string.achievement_explorer);
+		}else if(level == 25){
+			MainActivity.context.giveAchievement(R.string.achievement_just_lucky);
+		}
+		
+		if(level > 1){
+			MainActivity.context.submitScore(R.string.leaderboard_furthest_level, level);
+			
+			for(int i = 0; i < enemies.size(); i++){
+				if(enemies.get(i).dead)
+					enemiesKilledCounter++;
+			}
+		}
 		
 		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 14);
 		
@@ -410,7 +429,13 @@ public class GameThread extends Thread
 				
 				if(line.dead){
 					
+					for(int i = 0; i < enemies.size(); i++){
+						if(enemies.get(i).dead)
+							enemiesKilledCounter++;
+					}
+					
 					MainActivity.context.submitScore(R.string.leaderboard_coins_collected, coinCounter);
+					MainActivity.context.submitScore(R.string.leaderboard_enemies_killed, enemiesKilledCounter);
 					
 					gameExists = false;
 					setScreen(Screen.START);
