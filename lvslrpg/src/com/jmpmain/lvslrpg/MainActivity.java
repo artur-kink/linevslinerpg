@@ -31,12 +31,15 @@ public class MainActivity extends BaseGameActivity {
 	
 	public static Typeface pixelFont;
 	
+	public static boolean registerred;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//Remove title.
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
 		context = this;
+		
 		
 		//Do not log in on startup.
 		getGameHelper().setConnectOnStart(false);
@@ -108,6 +111,11 @@ public class MainActivity extends BaseGameActivity {
 		return isSignedIn();
 	}
 	
+	public void submitScore(int scoreId, int score){
+		if(registerred && isSignedIn())
+			Games.Leaderboards.submitScore(getApiClient(), getResources().getString(scoreId), score);
+	}
+	
 	public void openAchievements(){
 		if(loggedIn()){
 			startActivityForResult(Games.Achievements.getAchievementsIntent(getApiClient()), 0);
@@ -116,15 +124,19 @@ public class MainActivity extends BaseGameActivity {
 	
 	public void openHighscores(){
 		if(loggedIn()){
-			startActivityForResult(Games.Leaderboards.getLeaderboardIntent(getApiClient(), getResources().getString(R.string.leaderboard)), 1);
+			startActivityForResult(Games.Leaderboards.getAllLeaderboardsIntent(getApiClient()), 1);
 		}
 	}
 	
 	@Override
 	public void onSignInFailed() {
+		registerred = false;
+		thread.saveSettings();
 	}
 
 	@Override
 	public void onSignInSucceeded() {
+		registerred = true;
+		thread.saveSettings();
 	}
 }

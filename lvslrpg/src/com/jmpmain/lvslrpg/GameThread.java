@@ -159,6 +159,9 @@ public class GameThread extends Thread
 		SharedPreferences settings = MainActivity.context.getSharedPreferences("settings", 0);
 		SoundOn = settings.getBoolean("sound", true);
 		gameControls = Controls.values()[settings.getInt("controls", 0)];
+		MainActivity.registerred = settings.getBoolean("registerred", false);
+		if(MainActivity.registerred)
+			MainActivity.context.loggedIn();
 		
 		updateCallCount = 0;
 		ups = 0;
@@ -406,6 +409,9 @@ public class GameThread extends Thread
 				}
 				
 				if(line.dead){
+					
+					MainActivity.context.submitScore(R.string.leaderboard_coins_collected, coinCounter);
+					
 					gameExists = false;
 					setScreen(Screen.START);
 				}
@@ -492,10 +498,11 @@ public class GameThread extends Thread
 	/**
 	 * Save game settings.
 	 */
-	private void saveSettings(){
+	public void saveSettings(){
 		SharedPreferences settings = MainActivity.context.getSharedPreferences("settings", 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putBoolean("sound", SoundOn);
+		editor.putBoolean("registerred", MainActivity.registerred);
 		editor.putInt("controls", gameControls.getValue());
 		editor.commit();
 	}
