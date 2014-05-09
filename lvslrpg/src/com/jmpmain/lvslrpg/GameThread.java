@@ -299,7 +299,7 @@ public class GameThread extends Thread
 			}
 		}
 		
-		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 14);
+		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 16);
 		
 		line.setMap(map);
 		line.setDirection(0, -1);
@@ -377,23 +377,30 @@ public class GameThread extends Thread
 		//Game loop.
 		while (running) {
 			
+			//Check if game state should be updated.
+			if(System.currentTimeMillis() - lastUpdate <= 33){
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				continue;
+			}
+			lastUpdate = System.currentTimeMillis();
+			
+			
 			if(currentScreen == Screen.MENU){
 				
 			}
 			else if(currentScreen == Screen.BATTLE){
-				//Check if game state should be updated.
-				if(System.currentTimeMillis() - lastUpdate < 25){
-					drawCall(gameCanvas);
-					continue;
-				}
-				lastUpdate = System.currentTimeMillis();
 				
 				long currentTimeMillis = System.currentTimeMillis();
 				
 				//Update debug parameters.
 				if(BuildConfig.DEBUG){				
 					updateCallCount++;
-					if(System.currentTimeMillis() - lastUpdateCallReset > 1000){
+					if(System.currentTimeMillis() - lastUpdateCallReset >= 1000){
 						lastUpdateCallReset = System.currentTimeMillis();
 						ups = updateCallCount;
 						updateCallCount = 0;
@@ -714,6 +721,9 @@ public class GameThread extends Thread
 	 */
 	public void onTouchEvent(MotionEvent event){
 		
+		if(currentScreen != Screen.BATTLE)
+			return;
+		
 		//Record where touch began, used for swiping.
 		if(event.getAction() == MotionEvent.ACTION_DOWN){
 			startTouchX = (int) event.getX();
@@ -751,6 +761,10 @@ public class GameThread extends Thread
 	 * Handle tilt input if playing with tilt controls.
 	 */
 	public void onSensorChanged(SensorEvent event) {
+		
+		if(currentScreen != Screen.BATTLE)
+			return;
+		
 		if(gameControls == Controls.Tilt){
 			float x = event.values[0];
 			float y = event.values[1];

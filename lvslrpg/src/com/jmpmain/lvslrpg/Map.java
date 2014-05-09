@@ -13,7 +13,9 @@ public class Map {
 		Ground,
 		Water,
 		Sand,
-		Mountain
+		Forest,
+		Mountain,
+		Hill
 	}
 	
 	/** Tile type array. The map array. */

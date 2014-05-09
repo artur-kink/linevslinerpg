@@ -77,11 +77,15 @@ public class LineEntity extends Entity {
 		TileType tile = map.getTile(x, y);
 		switch(tile){
 			case Mountain:
+				return 0.5f;
+			case Hill:
 				return 0.6f;
 			case Sand:
 				return 0.9f;
 			case Water:
 				return 0.5f;
+			case Forest:
+				return 0.9f;
 			default:
 				return 1.0f;
 			
