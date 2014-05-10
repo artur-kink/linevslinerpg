@@ -48,8 +48,8 @@ public class MapGenerator {
 	
 	/**
 	 * Generate random map.
-	 * @param width Width of map in tiles.
-	 * @param height Height of map in tiles.
+	 * @param width Width of map in pixels.
+	 * @param height Height of map in pixels.
 	 * @param tileSize Size of tiles in map.
 	 * @return Generated map.
 	 */
@@ -58,7 +58,7 @@ public class MapGenerator {
 		
 		//Nexus 7.2 map size
 		//120x75
-		float worldSize = ((float)(width*height))/((float)(120*75));
+		float worldSize = ((float)(map.width*map.height))/((float)(120*75));
 		
 		MapTheme theme = MapTheme.Temperate;
 		
@@ -76,13 +76,13 @@ public class MapGenerator {
 		CreateGround(map, ground);
 			
 		//Create forests
-		int numForests = Math.max(2, (int) (Math.random()*6));
+		int numForests = Math.max(4, (int) (Math.random()*(8.0f*worldSize)));
 		for(int i = 0; i < numForests; i++){
-			CreatePatch(map, theme, TileType.Forest, ground, 7, 3, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+			CreatePatch(map, theme, TileType.Forest, ground, (int)(7.0f*worldSize), 3, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
 		}
 		
 		//Create lakes
-		int numLakes = Math.max(2, (int) (Math.random()*6));
+		int numLakes = Math.max(3, (int) (Math.random()*(8.0f*worldSize)));
 		for(int i = 0; i < numLakes; i++){
 			int x = 0;
 			int y = 0;
@@ -92,11 +92,11 @@ public class MapGenerator {
 				y = (int)(Math.random()*map.height);
 			}while(Math.sqrt(Math.pow(x - map.playerStart.x, 2) +  Math.pow(y - map.playerStart.y, 2)) <= 13 ||
 				map.getTile(x, y) != ground);
-			CreatePatch(map, theme, TileType.Water, ground, 9, 0, x, y);
+			CreatePatch(map, theme, TileType.Water, ground, (int)(9.0f*worldSize), 0, x, y);
 		}
 		
 		//Create mountains
-		int numMountains = Math.max(2, (int) (Math.random()*6));
+		int numMountains = Math.max(3, (int) (Math.random()*(6.0f*worldSize)));
 		for(int i = 0; i < numMountains; i++){
 			int x = 0;
 			int y = 0;
@@ -106,9 +106,9 @@ public class MapGenerator {
 				y = (int)(Math.random()*map.height);
 			}while(map.getTile(x, y) != ground);
 			if(Math.random() > 0.5)
-				CreatePatch(map, theme, TileType.Mountain, ground, 3, 5, x, y);
+				CreatePatch(map, theme, TileType.Mountain, ground, (int)(3.0f*worldSize), 5, x, y);
 			else
-				CreatePatch(map, theme, TileType.Hill, ground, 4, 5, x, y);
+				CreatePatch(map, theme, TileType.Hill, ground, (int)(4.0f*worldSize), 5, x, y);
 		}
 		
 		//Create shores around water

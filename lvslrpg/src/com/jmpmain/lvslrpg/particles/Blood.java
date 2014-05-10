@@ -21,7 +21,7 @@ public class Blood extends Particle {
 		destroy = false;
 		createTime = time;
 		
-		particle = new Rect(x, y, x+5, y+5);
+		particle = new Rect(x, y, x+8, y+8);
 		
 		xVelocity = (float)(Math.random()-0.5)*7;
 		yVelocity = (float)(Math.random()-0.5)*7;

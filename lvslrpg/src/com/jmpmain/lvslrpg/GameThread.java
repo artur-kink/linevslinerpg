@@ -39,6 +39,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 /**
  * Main game thread.
@@ -222,6 +223,8 @@ public class GameThread extends Thread
 		controlsSpinner.setSelection(gameControls.getValue());
 		controlsSpinner.setOnItemSelectedListener(this);
 		
+		TextView controlsLabel = (TextView) optionsScreen.findViewById(R.id.controls_label);
+		
 		audioButton = (Button) optionsScreen.findViewById(R.id.audio_button);
 		audioButton.setOnClickListener(this);
 		if(!SoundOn){
@@ -252,6 +255,7 @@ public class GameThread extends Thread
 		achievementsButton.setTypeface(MainActivity.pixelFont);
 		continueButton.setTypeface(MainActivity.pixelFont);
 		audioButton.setTypeface(MainActivity.pixelFont);
+		controlsLabel.setTypeface(MainActivity.pixelFont);
 		
 		gameExists = false;
 		setRunning(false);

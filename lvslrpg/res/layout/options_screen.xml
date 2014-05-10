@@ -11,6 +11,14 @@
         android:layout_height="wrap_content"
         style="@style/menu_button" />
     
+    <TextView android:text="Input method:"
+        android:id="@+id/controls_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/controls_spinner"
+        android:layout_alignLeft="@id/controls_spinner"
+        style="@style/menu_button"/>
+    
     <Button
         android:id="@+id/audio_button"
         android:layout_centerHorizontal="true"
