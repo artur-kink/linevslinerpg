@@ -1,8 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">lvslrpg</string>
+    <string name="app_name">Line Wars</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="AdId">ca-app-pub-4106849763518506/1143516875</string>
+    <string-array name="TestDevices">
+        <item>934B9241750C41A8C346024FDFE7739C</item>
+    </string-array>
+    <string-array name="ControlsOptions">
+        <item>Static Buttons</item>
+        <item>Clockwise Buttons</item>
+        <item>Swipe</item>
+        <item>Tap</item>
+        <item>Tilt</item>
+    </string-array>
+
 
 </resources>

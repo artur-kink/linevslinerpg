@@ -76,13 +76,13 @@ public class MapGenerator {
 		CreateGround(map, ground);
 			
 		//Create forests
-		int numForests = Math.max(4, (int) (Math.random()*(8.0f*worldSize)));
+		int numForests = Math.max(4, (int) (Math.random()*(9.0f*worldSize)));
 		for(int i = 0; i < numForests; i++){
-			CreatePatch(map, theme, TileType.Forest, ground, (int)(7.0f*worldSize), 3, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+			CreatePatch(map, theme, TileType.Forest, ground, Math.max(3, (int)(7.0f*worldSize)), 3, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
 		}
 		
 		//Create lakes
-		int numLakes = Math.max(3, (int) (Math.random()*(8.0f*worldSize)));
+		int numLakes = Math.max(3, (int) (Math.random()*(9.0f*worldSize)));
 		for(int i = 0; i < numLakes; i++){
 			int x = 0;
 			int y = 0;
@@ -96,7 +96,7 @@ public class MapGenerator {
 		}
 		
 		//Create mountains
-		int numMountains = Math.max(3, (int) (Math.random()*(6.0f*worldSize)));
+		int numMountains = Math.max(3, (int) (Math.random()*(7.0f*worldSize)));
 		for(int i = 0; i < numMountains; i++){
 			int x = 0;
 			int y = 0;
@@ -106,9 +106,9 @@ public class MapGenerator {
 				y = (int)(Math.random()*map.height);
 			}while(map.getTile(x, y) != ground);
 			if(Math.random() > 0.5)
-				CreatePatch(map, theme, TileType.Mountain, ground, (int)(3.0f*worldSize), 5, x, y);
+				CreatePatch(map, theme, TileType.Mountain, ground, Math.max(2, (int)(3.0f*worldSize)), 5, x, y);
 			else
-				CreatePatch(map, theme, TileType.Hill, ground, (int)(4.0f*worldSize), 5, x, y);
+				CreatePatch(map, theme, TileType.Hill, ground, Math.max(2, (int)(4.0f*worldSize)), 5, x, y);
 		}
 		
 		//Create shores around water

@@ -108,7 +108,8 @@ public class GameThread extends Thread
 		Button_Static(0),
 		Button_Clockwise(1),
 		Swipe(2),
-		Tilt(3);
+		Tap(3),
+		Tilt(4);
 		
 		private final int value;
 	    private Controls(int value) {
@@ -163,7 +164,7 @@ public class GameThread extends Thread
 		if(BuildConfig.DEBUG)
 			gameControls = Controls.values()[settings.getInt("controls", 0)];
 		else
-			gameControls = Controls.values()[settings.getInt("controls", 1)];
+			gameControls = Controls.values()[settings.getInt("controls", 2)];
 		
 		MainActivity.registerred = settings.getBoolean("registerred", false);
 		if(MainActivity.registerred)
@@ -710,6 +711,8 @@ public class GameThread extends Thread
 		}else if(id == 2){
 			gameControls = Controls.Swipe;
 		}else if(id == 3){
+			gameControls = Controls.Tap;
+		}else if(id == 4){
 			gameControls = Controls.Tilt;
 		}
 		saveSettings();
@@ -748,6 +751,18 @@ public class GameThread extends Thread
 			int yDelta = startTouchY - (int) event.getY();
 			
 			//If player is moving in Y direction and swipe was in x direction.
+			if(line.getYVelocity() != 0 && Math.abs(xDelta) > Math.abs(yDelta)){
+				line.setDirection(-Math.signum(xDelta), 0);
+			}else if(line.getXVelocity() != 0 && Math.abs(yDelta) > Math.abs(xDelta)){
+				//If player is moving in X direction and swipe was in y direction.
+				line.setDirection(0, -Math.signum(yDelta));
+			}
+		}else if(gameControls == Controls.Tap && event.getAction() == MotionEvent.ACTION_DOWN){
+			//Tap control.
+			int xDelta = (int) (line.getX()*map.tileSize) - touchX;
+			int yDelta = (int) (line.getY()*map.tileSize) - touchY;
+			
+			//If player is moving in Y direction and tap was in x direction.
 			if(line.getYVelocity() != 0 && Math.abs(xDelta) > Math.abs(yDelta)){
 				line.setDirection(-Math.signum(xDelta), 0);
 			}else if(line.getXVelocity() != 0 && Math.abs(yDelta) > Math.abs(xDelta)){
