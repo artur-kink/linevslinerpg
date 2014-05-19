@@ -78,7 +78,7 @@ public class MapGenerator {
 		//Create forests
 		int numForests = Math.max(4, (int) (Math.random()*(9.0f*worldSize)));
 		for(int i = 0; i < numForests; i++){
-			CreatePatch(map, theme, TileType.Forest, ground, Math.max(3, (int)(7.0f*worldSize)), 3, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+			CreatePatch(map, theme, TileType.Forest, ground, Math.max(3, (int)(7.0f*worldSize)), 4, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
 		}
 		
 		//Create lakes
@@ -313,7 +313,7 @@ public class MapGenerator {
 					if(map.getTile(c, r) == TileType.Mountain){
 						Paint p = new Paint();
 						p.setARGB(255, 255, 255, 255);
-						map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(16, 0, 32, 16), new Rect(c*map.tileSize, r*map.tileSize,
+						map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(64, 0, 128, 64), new Rect(c*map.tileSize, r*map.tileSize,
 								c*map.tileSize + map.tileSize*5, r*map.tileSize + map.tileSize*5), p);
 						
 						for(int w = 0; w < 5; w++){
@@ -327,7 +327,7 @@ public class MapGenerator {
 					}else if(map.getTile(c, r) == TileType.Hill){
 						Paint p = new Paint();
 						p.setARGB(255, 255, 255, 255);
-						map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(48, 0, 64, 16), new Rect(c*map.tileSize, r*map.tileSize,
+						map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(64, 0, 128, 64), new Rect(c*map.tileSize, r*map.tileSize,
 								c*map.tileSize + map.tileSize*5, r*map.tileSize + map.tileSize*5), p);
 						
 						for(int w = 0; w < 5; w++){
@@ -341,12 +341,12 @@ public class MapGenerator {
 					}else if(map.getTile(c, r) == TileType.Forest){
 						Paint p = new Paint();
 						p.setARGB(255, 255, 255, 255);
-						map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(0, 0, 16, 16), new Rect(c*map.tileSize, r*map.tileSize,
-								c*map.tileSize + map.tileSize*3, r*map.tileSize + map.tileSize*3), p);
+						map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(0, 0, 64, 64), new Rect(c*map.tileSize, r*map.tileSize,
+								c*map.tileSize + map.tileSize*4, r*map.tileSize + map.tileSize*4), p);
 						
-						for(int w = 0; w < 3; w++){
+						for(int w = 0; w < 4; w++){
 							if(c + w < map.width){
-								for(int h = 0; h < 3; h++){
+								for(int h = 0; h < 4; h++){
 									if(r + h < map.height)
 										drawMap[r+h][c+w] = true;
 								}
