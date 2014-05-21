@@ -78,7 +78,7 @@ public class MapGenerator {
 		//Create forests
 		int numForests = Math.max(4, (int) (Math.random()*(9.0f*worldSize)));
 		for(int i = 0; i < numForests; i++){
-			CreatePatch(map, theme, TileType.Forest, ground, Math.max(3, (int)(7.0f*worldSize)), 4, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
+			CreatePatch(map, theme, TileType.Forest, ground, Math.max(3, (int)(7.0f*worldSize)), 3, (int)(Math.random()*map.width), (int)(Math.random()*map.height));
 		}
 		
 		//Create lakes
@@ -106,9 +106,9 @@ public class MapGenerator {
 				y = (int)(Math.random()*map.height);
 			}while(map.getTile(x, y) != ground);
 			if(Math.random() > 0.5)
-				CreatePatch(map, theme, TileType.Mountain, ground, Math.max(2, (int)(3.0f*worldSize)), 5, x, y);
+				CreatePatch(map, theme, TileType.Mountain, ground, Math.max(2, (int)(3.0f*worldSize)), 4, x, y);
 			else
-				CreatePatch(map, theme, TileType.Hill, ground, Math.max(2, (int)(4.0f*worldSize)), 5, x, y);
+				CreatePatch(map, theme, TileType.Hill, ground, Math.max(2, (int)(4.0f*worldSize)), 4, x, y);
 		}
 		
 		//Create shores around water
@@ -255,9 +255,9 @@ public class MapGenerator {
 		
 		map.setTile(x, y, type);
 		
-		for(int w = 0; w < size; w++){
+		for(int w = 0; w <= size; w++){
 			if(x + w < map.width){
-				for(int h = 0; h < size; h++){
+				for(int h = 0; h <= size; h++){
 					if(y + h < map.height)
 						map.setTile(x+w, y+h, type);
 				}

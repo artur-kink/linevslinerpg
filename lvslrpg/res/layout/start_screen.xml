@@ -4,6 +4,7 @@
     android:layout_height="match_parent">
     
     <LinearLayout
+        android:id="@+id/buttons_layout"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:orientation="vertical"
@@ -51,4 +52,15 @@
 		android:background="@drawable/menu_button"/>
     
 	</LinearLayout>
+	
+    <TextView android:text="LINE WARS"
+        android:id="@+id/game_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/buttons_layout"
+        android:textSize="55sp"
+		android:paddingBottom="30sp"
+        style="@style/menu_button"/>
+    
 </RelativeLayout>

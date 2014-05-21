@@ -12,6 +12,7 @@ import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.entities.*;
 import com.jmpmain.lvslrpg.entities.Item.ItemType;
 import com.jmpmain.lvslrpg.particles.Particle;
+import com.jmpmain.lvslrpg.particles.Smoke;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -146,6 +147,9 @@ public class GameThread extends Thread
 	public int coinCounter;
 	public int enemiesKilledCounter;
 	
+	public int mapDamageCounter;
+	public int mapEnemiesKilledCounter;
+	
 	/** View for ads. */
 	private AdView adView;
 	
@@ -184,8 +188,11 @@ public class GameThread extends Thread
 	    
 	    AdRequest.Builder adBuilder = new AdRequest.Builder()
 	        .addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-	    for(int i = 0; i < MainActivity.context.getResources().getStringArray(R.array.TestDevices).length; i++){
-	    	adBuilder.addTestDevice(MainActivity.context.getResources().getStringArray(R.array.TestDevices)[i]);
+	    //Add test devices if in debug mode.
+	    if(BuildConfig.DEBUG){
+		    for(int i = 0; i < MainActivity.context.getResources().getStringArray(R.array.TestDevices).length; i++){
+		    	adBuilder.addTestDevice(MainActivity.context.getResources().getStringArray(R.array.TestDevices)[i]);
+		    }
 	    }
 	    AdRequest adRequest = adBuilder.build();
 
@@ -197,6 +204,8 @@ public class GameThread extends Thread
 		
 	    LayoutInflater inflater = (LayoutInflater)MainActivity.context.getSystemService(MainActivity.context.LAYOUT_INFLATER_SERVICE );
 	    startScreen = (RelativeLayout) inflater.inflate(R.layout.start_screen, uiLayout);
+	    
+	    TextView gameTitle = (TextView) startScreen.findViewById(R.id.game_title);
 	    
 	    startButton = (Button) startScreen.findViewById(R.id.start_button);
 	    startButton.setOnClickListener(this);
@@ -256,6 +265,8 @@ public class GameThread extends Thread
 		achievementsButton.setTypeface(MainActivity.pixelFont);
 		continueButton.setTypeface(MainActivity.pixelFont);
 		audioButton.setTypeface(MainActivity.pixelFont);
+		
+		gameTitle.setTypeface(MainActivity.pixelFont);
 		controlsLabel.setTypeface(MainActivity.pixelFont);
 		
 		gameExists = false;
@@ -295,12 +306,24 @@ public class GameThread extends Thread
 			MainActivity.context.giveAchievement(R.string.achievement_just_lucky);
 		}
 		
+		if(mapEnemiesKilledCounter >= 4){
+			MainActivity.context.giveAchievement(R.string.achievement_clearing_the_fields);
+		}
+		mapEnemiesKilledCounter = 0;
+		
+		if(mapDamageCounter > 10){
+			MainActivity.context.giveAchievement(R.string.achievement_meatshield);
+		}
+		mapDamageCounter = 0;
+		
 		if(level > 1){
 			MainActivity.context.submitScore(R.string.leaderboard_furthest_level, level);
 			
 			for(int i = 0; i < enemies.size(); i++){
-				if(enemies.get(i).dead)
+				if(enemies.get(i).dead){
 					enemiesKilledCounter++;
+					mapEnemiesKilledCounter++;
+				}
 			}
 		}
 		
@@ -342,6 +365,10 @@ public class GameThread extends Thread
 				items.add(new Item(ItemType.Potion, x, y));
 		}
 		
+		particles.clear();
+		for(int i = 0; i < 20; i++){
+			particles.add(new Smoke((int) (map.city.x + 55 + Math.random()*3), (int) (map.city.y + Math.random()*3), 0));
+		}
 	}
 	
 	/**
@@ -412,7 +439,9 @@ public class GameThread extends Thread
 					}
 				}
 				
+				int lineHealth = line.health;
 				line.update(currentTimeMillis);
+				mapDamageCounter += lineHealth - line.health;
 				
 				//Check for item pickups
 				for(int i = 0; i < items.size(); i++){
@@ -444,14 +473,20 @@ public class GameThread extends Thread
 				}
 				
 				for(int i = 0; i < enemies.size(); i++){
+					boolean dead = enemies.get(i).dead;
 					enemies.get(i).update(currentTimeMillis);
+					if(!dead && enemies.get(i).dead){
+						items.add(new Item(ItemType.Coin, (int)enemies.get(i).getX()*map.tileSize, (int)enemies.get(i).getY()*map.tileSize));
+					}
 				}
 				
 				if(line.dead){
 					
 					for(int i = 0; i < enemies.size(); i++){
-						if(enemies.get(i).dead)
+						if(enemies.get(i).dead){
 							enemiesKilledCounter++;
+							mapEnemiesKilledCounter++;
+						}
 					}
 					
 					MainActivity.context.submitScore(R.string.leaderboard_coins_collected, coinCounter);
@@ -461,12 +496,14 @@ public class GameThread extends Thread
 					setScreen(Screen.START);
 				}
 				
+				//Update particles.
 				for(int i = 0; i < particles.size(); i++){
 					if(particles.get(i).destroy == true){
 						particles.remove(i);
 						i--;
 					}
 				}
+				
 				for(int i = 0; i < particles.size(); i++){
 					particles.get(i).update(currentTimeMillis);
 				}
