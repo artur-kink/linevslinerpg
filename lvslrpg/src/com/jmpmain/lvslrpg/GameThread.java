@@ -11,6 +11,7 @@ import com.google.android.gms.games.Games;
 import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.entities.*;
 import com.jmpmain.lvslrpg.entities.Item.ItemType;
+import com.jmpmain.lvslrpg.particles.Energy;
 import com.jmpmain.lvslrpg.particles.Particle;
 import com.jmpmain.lvslrpg.particles.Smoke;
 
@@ -134,6 +135,9 @@ public class GameThread extends Thread
 
 	/** Current game map. */
 	public Map map;
+	
+	public long lastTeleportEnergySpawn;
+	public boolean haveTeleport;
 	
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
@@ -334,6 +338,8 @@ public class GameThread extends Thread
 		line.setX(map.playerStart.x);
 		line.setY(map.playerStart.y);
 		
+		haveTeleport = false;
+		
 		enemies = new Vector<LineEntity>();
 		
 		for(int i = 0; i < map.enemyStarts.size(); i++){
@@ -348,6 +354,7 @@ public class GameThread extends Thread
 		
 		items = new Vector<Item>();
 		int numItems = (int) Math.max(4, Math.random()*10);
+		
 		for(int i = 0; i < numItems; i++){
 			int x = 0;
 			int y = 0;
@@ -358,16 +365,22 @@ public class GameThread extends Thread
 			}while(map.getDamage(x, y) == true);
 			x = x*map.tileSize;
 			y = y*map.tileSize;
-					
-			if(Math.random() >= 0.25)
-				items.add(new Item(ItemType.Coin, x, y));
+			
+			if(i == 0){
+				items.add(new Item(ItemType.Scroll, x, y));
+				continue;
+			}
+			
+			float random = (float) Math.random();
+			if(random >= 0.25)
+				items.add(new Item(ItemType.Scroll, x, y));
 			else
 				items.add(new Item(ItemType.Potion, x, y));
 		}
 		
 		particles.clear();
 		for(int i = 0; i < 20; i++){
-			particles.add(new Smoke((int) (map.city.x + 55 + Math.random()*3), (int) (map.city.y + Math.random()*3), 0));
+			particles.add(new Smoke((int) (map.city.x + 71 + Math.random()*3), (int) (map.city.y + Math.random()*3), 0));
 		}
 	}
 	
@@ -458,6 +471,8 @@ public class GameThread extends Thread
 							if(coinCounter == 100){
 								MainActivity.context.giveAchievement(R.string.achievement_bag_o_coin);
 							}
+						}else if(items.get(i).type == ItemType.Scroll){
+							haveTeleport = true;
 						}
 						
 						items.remove(i);
@@ -467,9 +482,17 @@ public class GameThread extends Thread
 				
 				//Check if player entered city.
 				if(new Rect((int)line.getX()*map.tileSize - 16, (int)line.getY()*map.tileSize - 16, (int)line.getX()*map.tileSize+16, (int)line.getY()*map.tileSize+16).intersect(
-						new Rect(map.city.x, map.city.y, map.city.x + 64, map.city.y + 64))){
+						new Rect(map.city.x, map.city.y, map.city.x + 80, map.city.y + 80))){
 					AudioPlayer.playSound(AudioPlayer.city);
 					setScreen(Screen.MENU);
+				}
+				
+				if(haveTeleport){
+					if(currentTimeMillis - lastTeleportEnergySpawn > 100){
+						particles.add(new Energy((int)line.getX()*map.tileSize + (int)(Math.random()*16),
+							(int)line.getY()*map.tileSize + (int)(Math.random()*16), lastUpdate));
+						lastTeleportEnergySpawn = currentTimeMillis;
+					}
 				}
 				
 				for(int i = 0; i < enemies.size(); i++){
@@ -781,9 +804,58 @@ public class GameThread extends Thread
 			touchY = (int) event.getY();
 		}
 		
-		//Handle swipe input if playing with swipe controls.
-		if(gameControls == Controls.Swipe && event.getAction() == MotionEvent.ACTION_UP){
+		if(haveTeleport && event.getAction() == MotionEvent.ACTION_DOWN){
 			
+			int newX = touchX/map.tileSize;
+			int newY = touchY/map.tileSize;
+			
+			int dx = (int) (newX - line.getX());
+			int dy = (int) (newY - line.getY());
+			
+			//Create a line of energy particles between teleport locations.
+			if(Math.abs(dx) > Math.abs(dy)){
+				if(dx > 0){
+					for(int x = (int) line.getX(); x < newX; x++){
+						int y = (int) (line.getY() + dy * (x - line.getX()) / dx);
+						particles.add(new Energy(x*map.tileSize + (int)(Math.random()*16), y*map.tileSize + (int)(Math.random()*16), lastUpdate));
+						particles.add(new Energy(x*map.tileSize + (int)(Math.random()*16), y*map.tileSize + (int)(Math.random()*16), lastUpdate));
+					}
+				}else{
+					for(int x = (int) line.getX(); x > newX; x--){
+						int y = (int) (line.getY() + dy * (x - line.getX()) / dx);
+						particles.add(new Energy(x*map.tileSize + (int)(Math.random()*16), y*map.tileSize + (int)(Math.random()*16), lastUpdate));
+						particles.add(new Energy(x*map.tileSize + (int)(Math.random()*16), y*map.tileSize + (int)(Math.random()*16), lastUpdate));
+					}
+				}
+			}else{
+				if(dy > 0){
+					for(int y = (int) line.getY(); y < newY; y++){
+						int x = (int) (line.getX() + dx * (y - line.getY()) / dy);
+						particles.add(new Energy(x*map.tileSize + (int)(Math.random()*16), y*map.tileSize + (int)(Math.random()*16), lastUpdate));
+						particles.add(new Energy(x*map.tileSize + (int)(Math.random()*16), y*map.tileSize + (int)(Math.random()*16), lastUpdate));
+					}
+				}else{
+					for(int y = (int) line.getY(); y > newY; y--){
+						int x = (int) (line.getX() + dx * (y - line.getY()) / dy);
+						particles.add(new Energy(x*map.tileSize + (int)(Math.random()*16), y*map.tileSize + (int)(Math.random()*16), lastUpdate));
+						particles.add(new Energy(x*map.tileSize + (int)(Math.random()*16), y*map.tileSize + (int)(Math.random()*16), lastUpdate));
+					}
+				}
+			}
+			
+			line.setX(newX);
+			line.setY(newY);
+			haveTeleport = false;
+			AudioPlayer.playSound(AudioPlayer.teleport);
+			
+			if(Math.abs(dx) <= 1 && Math.abs(dy) <= 1){
+				MainActivity.context.giveAchievement(R.string.achievement_not_going_anywhere);
+			}else if(Math.abs(dx) + Math.abs(dy) >= ((float)(map.width + map.height))*0.95f){
+				MainActivity.context.giveAchievement(R.string.achievement_were_going_places);
+			}
+			
+		}else if(gameControls == Controls.Swipe && event.getAction() == MotionEvent.ACTION_UP){
+			//Handle swipe input if playing with swipe controls.
 			int xDelta = startTouchX - (int) event.getX();
 			int yDelta = startTouchY - (int) event.getY();
 			
