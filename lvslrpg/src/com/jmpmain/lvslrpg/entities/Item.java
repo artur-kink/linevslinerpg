@@ -20,7 +20,8 @@ public class Item extends Entity {
 	public enum ItemType{
 		Coin,
 		Potion,
-		Scroll
+		Scroll,
+		Chest
 	}
 	
 	public ItemType type;
@@ -39,6 +40,8 @@ public class Item extends Entity {
 			icon = GameSurface.potion;
 		else if(type == ItemType.Scroll)
 			icon = GameSurface.scroll;
+		else if(type == ItemType.Chest)
+			icon = GameSurface.chest;
 	}
 	
 	@Override

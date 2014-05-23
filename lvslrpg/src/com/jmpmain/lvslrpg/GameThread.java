@@ -151,6 +151,7 @@ public class GameThread extends Thread
 	public int coinCounter;
 	public int enemiesKilledCounter;
 	
+	public int chestCounter;
 	public int mapDamageCounter;
 	public int mapEnemiesKilledCounter;
 	
@@ -289,6 +290,7 @@ public class GameThread extends Thread
 		level = 0;
 		coinCounter = 0;
 		enemiesKilledCounter = 0;
+		chestCounter = 0;
 		
 		setTurnButtons();
 		
@@ -372,10 +374,12 @@ public class GameThread extends Thread
 			}
 			
 			float random = (float) Math.random();
-			if(random >= 0.25)
-				items.add(new Item(ItemType.Scroll, x, y));
-			else
+			if(random >= 20.25)
+				items.add(new Item(ItemType.Coin, x, y));
+			else if(random >= 20.02)
 				items.add(new Item(ItemType.Potion, x, y));
+			else
+				items.add(new Item(ItemType.Chest, x, y));
 		}
 		
 		particles.clear();
@@ -473,6 +477,11 @@ public class GameThread extends Thread
 							}
 						}else if(items.get(i).type == ItemType.Scroll){
 							haveTeleport = true;
+						}else if(items.get(i).type == ItemType.Chest){
+							chestCounter++;
+							if(chestCounter == 5){
+								MainActivity.context.giveAchievement(R.string.achievement_treasure_seeker);
+							}
 						}
 						
 						items.remove(i);

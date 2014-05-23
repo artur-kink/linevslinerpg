@@ -24,7 +24,7 @@ public class Smoke extends Particle {
 		xPosition = spawnX;
 		spawnY = y;
 		
-		particle = new Rect(spawnX, spawnY, spawnX+3, spawnY+3);
+		particle = new Rect(spawnX, spawnY, spawnX+5, spawnY+5);
 		paint = new Paint();
 		paint.setARGB(64, 0, 0, 0);
 		liveTime = 0;
@@ -48,7 +48,7 @@ public class Smoke extends Particle {
 		
 		xPosition += xVelocity;
 		particle.left = (int) xPosition;
-		particle.right = (int) (xPosition + 3);
+		particle.right = (int) (xPosition + 5);
 	}
 
 	@Override
