@@ -38,5 +38,4 @@ public class Energy extends Particle {
 	public void draw(Canvas canvas) {
 		canvas.drawRect(particle, paint);
 	}
-
 }

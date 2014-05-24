@@ -18,10 +18,17 @@ public class Item extends Entity {
 	private Bitmap icon;
 	
 	public enum ItemType{
-		Coin,
-		Potion,
-		Scroll,
-		Chest
+		
+		Coin(0),
+		Potion(1),
+		Scroll(2),
+		Chest(3);
+		
+		public final int value;
+		
+		private ItemType(int v){
+			value = v;
+		}
 	}
 	
 	public ItemType type;
@@ -34,14 +41,19 @@ public class Item extends Entity {
 		width = 32;
 		height = 32;
 		
+		icon = GetItemIcon(t);
+	}
+	
+	public static Bitmap GetItemIcon(ItemType type){
 		if(type == ItemType.Coin)
-			icon = GameSurface.coin;
+			return GameSurface.coin;
 		else if(type == ItemType.Potion)
-			icon = GameSurface.potion;
+			return GameSurface.potion;
 		else if(type == ItemType.Scroll)
-			icon = GameSurface.scroll;
+			return GameSurface.scroll;
 		else if(type == ItemType.Chest)
-			icon = GameSurface.chest;
+			return GameSurface.chest;
+		return null;
 	}
 	
 	@Override

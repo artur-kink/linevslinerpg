@@ -12,6 +12,7 @@ import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.entities.*;
 import com.jmpmain.lvslrpg.entities.Item.ItemType;
 import com.jmpmain.lvslrpg.particles.Energy;
+import com.jmpmain.lvslrpg.particles.ItemParticle;
 import com.jmpmain.lvslrpg.particles.Particle;
 import com.jmpmain.lvslrpg.particles.Smoke;
 
@@ -349,7 +350,7 @@ public class GameThread extends Thread
 			enemy.setColor(155, Math.max(128, (int)(Math.random()*255)), (int)(Math.random()*255), Math.max(64, (int)(Math.random()*255)));
 			enemy.setDirection(0, 1);
 			enemy.setMap(map);
-			enemy.setMaxHealth(enemy.maxHealth + level);
+			enemy.setMaxHealth((int) (enemy.maxHealth + (level*0.5f)));
 			enemy.character = GameSurface.enemy;
 			enemies.add(enemy);
 		}
@@ -374,9 +375,9 @@ public class GameThread extends Thread
 			}
 			
 			float random = (float) Math.random();
-			if(random >= 20.25)
+			if(random >= 0.27)
 				items.add(new Item(ItemType.Coin, x, y));
-			else if(random >= 20.02)
+			else if(random >= 0.02)
 				items.add(new Item(ItemType.Potion, x, y));
 			else
 				items.add(new Item(ItemType.Chest, x, y));
@@ -476,11 +477,20 @@ public class GameThread extends Thread
 								MainActivity.context.giveAchievement(R.string.achievement_bag_o_coin);
 							}
 						}else if(items.get(i).type == ItemType.Scroll){
+							AudioPlayer.playSound(AudioPlayer.scroll);
 							haveTeleport = true;
 						}else if(items.get(i).type == ItemType.Chest){
 							chestCounter++;
 							if(chestCounter == 5){
 								MainActivity.context.giveAchievement(R.string.achievement_treasure_seeker);
+							}
+							
+							AudioPlayer.playSound(AudioPlayer.coin);
+							
+							int numitems = (int) Math.max(3, Math.random()*5);
+							for(int t = 0; t < numitems; t++){
+								particles.add(
+									new ItemParticle(items.get(i).x, items.get(i).y, ItemType.values()[(int) (Math.random()*3)], currentTimeMillis));
 							}
 						}
 						
@@ -508,7 +518,9 @@ public class GameThread extends Thread
 					boolean dead = enemies.get(i).dead;
 					enemies.get(i).update(currentTimeMillis);
 					if(!dead && enemies.get(i).dead){
-						items.add(new Item(ItemType.Coin, (int)enemies.get(i).getX()*map.tileSize, (int)enemies.get(i).getY()*map.tileSize));
+						particles.add(new ItemParticle(
+							(int)enemies.get(i).getX()*map.tileSize, (int)enemies.get(i).getY()*map.tileSize,
+							ItemType.Coin, currentTimeMillis));
 					}
 				}
 				
@@ -531,6 +543,12 @@ public class GameThread extends Thread
 				//Update particles.
 				for(int i = 0; i < particles.size(); i++){
 					if(particles.get(i).destroy == true){
+						
+						if(particles.get(i) instanceof ItemParticle){
+							items.add(new Item(((ItemParticle)particles.get(i)).type, (int)((ItemParticle)particles.get(i)).x,
+									(int)((ItemParticle)particles.get(i)).y));
+						}
+						
 						particles.remove(i);
 						i--;
 					}
@@ -815,8 +833,47 @@ public class GameThread extends Thread
 		
 		if(haveTeleport && event.getAction() == MotionEvent.ACTION_DOWN){
 			
-			int newX = touchX/map.tileSize;
-			int newY = touchY/map.tileSize;
+			int tapX = touchX/map.tileSize;
+			int tapY = touchY/map.tileSize;
+
+			int newX = tapX;
+			int newY = tapY;
+			
+			int freeSpaces = 0;
+			//Find optimal position to place player
+			for(int w = -2; w < 3; w++){
+				for(int h = -2; h < 3; h++){
+					if(tapX + w < map.width && tapX + w >= 0 &&
+						tapY + h < map.height && tapY + h >= 0){
+					
+						int spaceCounter = 0;
+						
+						for(int i = 0; i < 5; i++){
+							if(tapX + w + i*Math.signum(line.getXVelocity()) < map.width && tapX + w + i*Math.signum(line.getXVelocity()) >= 0 &&
+									tapY + h + i*Math.signum(line.getYVelocity()) < map.height && tapY + h + i*Math.signum(line.getYVelocity()) >= 0){
+								if(!map.getDamage((int)(tapX + w + i*Math.signum(line.getXVelocity())), (int) (tapY + h + i*Math.signum(line.getYVelocity())))){
+									spaceCounter++;
+								}
+							}else{
+								break;
+							}
+						}
+						
+						if(spaceCounter > freeSpaces){
+							freeSpaces = spaceCounter;
+							newX = tapX + w;
+							newY = tapY + h;
+						}else if(spaceCounter == freeSpaces){
+							if(Math.abs(tapX + w - newX) <= Math.abs(tapX - newX) &&
+								Math.abs(tapY + h - newY) <= Math.abs(tapY - newY)){
+								newX = tapX + w;
+								newY = tapY + h;
+							}
+						}
+					}
+				}
+			}
+			
 			
 			int dx = (int) (newX - line.getX());
 			int dy = (int) (newY - line.getY());

@@ -20,6 +20,7 @@ public class AudioPlayer {
 	public static int dead;
 	public static int hit;
 	public static int potion;
+	public static int scroll;
 	public static int teleport;
 
 	/**
@@ -34,6 +35,7 @@ public class AudioPlayer {
 	     dead = soundPool.load(context, R.raw.dead, 1);
 	     hit = soundPool.load(context, R.raw.hit, 1);
 	     potion = soundPool.load(context, R.raw.potion, 1);
+	     scroll = soundPool.load(context, R.raw.scroll, 1);
 	     teleport = soundPool.load(context, R.raw.teleport, 1);
 	}
 
