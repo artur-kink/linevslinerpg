@@ -19,7 +19,7 @@ public class AILineEntity extends LineEntity {
 	private Vector<Point> getAvailableDirections(){
 		Vector<Point> directions = new Vector<Point>();
 		
-		if(xVelocity > 0){
+		if(xVelocity != 0){
 			directions.add(new Point(0, 1));
 			directions.add(new Point(0, -1));
 		}else{

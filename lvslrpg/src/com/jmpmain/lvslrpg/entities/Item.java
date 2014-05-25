@@ -21,8 +21,9 @@ public class Item extends Entity {
 		
 		Coin(0),
 		Potion(1),
-		Scroll(2),
-		Chest(3);
+		Teleport_Scroll(2),
+		Speed_Scroll(3),
+		Chest(4);
 		
 		public final int value;
 		
@@ -49,8 +50,10 @@ public class Item extends Entity {
 			return GameSurface.coin;
 		else if(type == ItemType.Potion)
 			return GameSurface.potion;
-		else if(type == ItemType.Scroll)
-			return GameSurface.scroll;
+		else if(type == ItemType.Teleport_Scroll)
+			return GameSurface.teleport_scroll;
+		else if(type == ItemType.Speed_Scroll)
+			return GameSurface.speed_scroll;
 		else if(type == ItemType.Chest)
 			return GameSurface.chest;
 		return null;

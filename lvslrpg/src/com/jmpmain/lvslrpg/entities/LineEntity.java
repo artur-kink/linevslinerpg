@@ -191,9 +191,14 @@ public class LineEntity extends Entity {
 		}
 		
 		//Update entity position.
-		x += getTileXVelocity(lastXCheck, lastYCheck);
-		y += getTileYVelocity(lastXCheck, lastYCheck);
-			
+		if(this == GameThread.instance.line && GameThread.instance.haveSpeedScroll){
+			x += getTileXVelocity(lastXCheck, lastYCheck)*1.75;
+			y += getTileYVelocity(lastXCheck, lastYCheck)*1.75;
+		}else{
+			x += getTileXVelocity(lastXCheck, lastYCheck);
+			y += getTileYVelocity(lastXCheck, lastYCheck);
+		}	
+		
 		//If position has changed check for collision.
 		if(lastXCheck != (int)x || lastYCheck != (int)y){
 			lastXCheck = (int)x;

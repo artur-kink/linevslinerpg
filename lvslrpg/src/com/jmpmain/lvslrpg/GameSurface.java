@@ -38,8 +38,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	public static Bitmap coin;
 	public static Bitmap dead;
 	public static Bitmap enemy;
+	public static Bitmap health;
 	public static Bitmap potion;
-	public static Bitmap scroll;
+	public static Bitmap teleport_scroll;
+	public static Bitmap speed_scroll;
 	public static Bitmap tileset;
 	
 	public GameSurface(Context context) {
@@ -63,8 +65,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		chest = BitmapFactory.decodeResource(getResources(), R.drawable.chest);
 		coin = BitmapFactory.decodeResource(getResources(), R.drawable.coin);
 		enemy = BitmapFactory.decodeResource(getResources(), R.drawable.c2);
+		health = BitmapFactory.decodeResource(getResources(), R.drawable.health);
 		potion = BitmapFactory.decodeResource(getResources(), R.drawable.potion);
-		scroll = BitmapFactory.decodeResource(getResources(), R.drawable.scroll);
+		teleport_scroll = BitmapFactory.decodeResource(getResources(), R.drawable.teleport_scroll);
+		speed_scroll = BitmapFactory.decodeResource(getResources(), R.drawable.speed_scroll);
 		tileset = BitmapFactory.decodeResource(getResources(), R.drawable.tileset);
 				
 		setFocusable(true);

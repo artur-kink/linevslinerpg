@@ -12,6 +12,7 @@ import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.entities.*;
 import com.jmpmain.lvslrpg.entities.Item.ItemType;
 import com.jmpmain.lvslrpg.particles.Energy;
+import com.jmpmain.lvslrpg.particles.Heal;
 import com.jmpmain.lvslrpg.particles.ItemParticle;
 import com.jmpmain.lvslrpg.particles.Particle;
 import com.jmpmain.lvslrpg.particles.Smoke;
@@ -139,6 +140,10 @@ public class GameThread extends Thread
 	
 	public long lastTeleportEnergySpawn;
 	public boolean haveTeleport;
+	
+	/** Time when speed scroll was activated. */
+	public long speedScrollTime;
+	public boolean haveSpeedScroll;
 	
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
@@ -305,6 +310,7 @@ public class GameThread extends Thread
 		gameExists = true;
 		level++;
 		
+		//Check for level achievements
 		if(level == 10){
 			MainActivity.context.giveAchievement(R.string.achievement_adventurer);
 		}else if(level == 25){
@@ -313,16 +319,19 @@ public class GameThread extends Thread
 			MainActivity.context.giveAchievement(R.string.achievement_just_lucky);
 		}
 		
+		//Check for clearing the fields achievement
 		if(mapEnemiesKilledCounter >= 4){
 			MainActivity.context.giveAchievement(R.string.achievement_clearing_the_fields);
 		}
 		mapEnemiesKilledCounter = 0;
 		
+		//Check for meatshield achievement
 		if(mapDamageCounter > 10){
 			MainActivity.context.giveAchievement(R.string.achievement_meatshield);
 		}
 		mapDamageCounter = 0;
 		
+		//Update furthest level highscore
 		if(level > 1){
 			MainActivity.context.submitScore(R.string.leaderboard_furthest_level, level);
 			
@@ -334,17 +343,18 @@ public class GameThread extends Thread
 			}
 		}
 		
+		//Create new map
 		map = MapGenerator.GenerateMap(gameSurface.getWidth(), gameSurface.getHeight(), 16);
 		
+		//Setup player
 		line.setMap(map);
 		line.setDirection(0, -1);
 		line.setX(map.playerStart.x);
 		line.setY(map.playerStart.y);
-		
 		haveTeleport = false;
 		
+		//Setup enemies
 		enemies = new Vector<LineEntity>();
-		
 		for(int i = 0; i < map.enemyStarts.size(); i++){
 			LineEntity enemy = new AILineEntity(map.enemyStarts.get(i).x, map.enemyStarts.get(i).y);
 			enemy.setColor(155, Math.max(128, (int)(Math.random()*255)), (int)(Math.random()*255), Math.max(64, (int)(Math.random()*255)));
@@ -355,9 +365,9 @@ public class GameThread extends Thread
 			enemies.add(enemy);
 		}
 		
+		//Setup items
 		items = new Vector<Item>();
 		int numItems = (int) Math.max(4, Math.random()*10);
-		
 		for(int i = 0; i < numItems; i++){
 			int x = 0;
 			int y = 0;
@@ -369,20 +379,25 @@ public class GameThread extends Thread
 			x = x*map.tileSize;
 			y = y*map.tileSize;
 			
+			//Make 50% of maps have a teleport scroll.
 			if(i == 0){
-				items.add(new Item(ItemType.Scroll, x, y));
+				if(Math.random() >= 0.5)
+					items.add(new Item(ItemType.Teleport_Scroll, x, y));
+				else
+					items.add(new Item(ItemType.Speed_Scroll, x, y));
 				continue;
 			}
 			
 			float random = (float) Math.random();
-			if(random >= 0.27)
+			if(random >= 20.27)
 				items.add(new Item(ItemType.Coin, x, y));
-			else if(random >= 0.02)
+			else if(random >= 20.02)
 				items.add(new Item(ItemType.Potion, x, y));
 			else
 				items.add(new Item(ItemType.Chest, x, y));
 		}
 		
+		//Setup particles
 		particles.clear();
 		for(int i = 0; i < 20; i++){
 			particles.add(new Smoke((int) (map.city.x + 71 + Math.random()*3), (int) (map.city.y + Math.random()*3), 0));
@@ -469,6 +484,10 @@ public class GameThread extends Thread
 						if(items.get(i).type == ItemType.Potion){
 							line.addHealth(3);
 							AudioPlayer.playSound(AudioPlayer.potion);
+							for(int p = 0; p < 3; p++){
+								particles.add(new Heal((int) (line.getX()*map.tileSize + (Math.random()-0.5)*32),
+									(int) (line.getY()*map.tileSize + (Math.random()-0.5)*32), currentTimeMillis));
+							}
 						}else if(items.get(i).type == ItemType.Coin){
 							AudioPlayer.playSound(AudioPlayer.coin);
 							coinCounter++;
@@ -476,10 +495,18 @@ public class GameThread extends Thread
 							if(coinCounter == 100){
 								MainActivity.context.giveAchievement(R.string.achievement_bag_o_coin);
 							}
-						}else if(items.get(i).type == ItemType.Scroll){
+						}else if(items.get(i).type == ItemType.Teleport_Scroll){
 							AudioPlayer.playSound(AudioPlayer.scroll);
 							haveTeleport = true;
+						}else if(items.get(i).type == ItemType.Speed_Scroll){
+							AudioPlayer.playSound(AudioPlayer.scroll);
+							if(haveSpeedScroll){
+								MainActivity.context.giveAchievement(R.string.achievement_gotta_go_fast);
+							}
+							haveSpeedScroll = true;
+							speedScrollTime = currentTimeMillis;
 						}else if(items.get(i).type == ItemType.Chest){
+						
 							chestCounter++;
 							if(chestCounter == 5){
 								MainActivity.context.giveAchievement(R.string.achievement_treasure_seeker);
@@ -490,7 +517,7 @@ public class GameThread extends Thread
 							int numitems = (int) Math.max(3, Math.random()*5);
 							for(int t = 0; t < numitems; t++){
 								particles.add(
-									new ItemParticle(items.get(i).x, items.get(i).y, ItemType.values()[(int) (Math.random()*3)], currentTimeMillis));
+									new ItemParticle(items.get(i).x, items.get(i).y, ItemType.values()[(int) (Math.random()*4)], currentTimeMillis));
 							}
 						}
 						
@@ -511,6 +538,12 @@ public class GameThread extends Thread
 						particles.add(new Energy((int)line.getX()*map.tileSize + (int)(Math.random()*16),
 							(int)line.getY()*map.tileSize + (int)(Math.random()*16), lastUpdate));
 						lastTeleportEnergySpawn = currentTimeMillis;
+					}
+				}
+				
+				if(haveSpeedScroll){
+					if(currentTimeMillis - speedScrollTime > 2500){
+						haveSpeedScroll = false;
 					}
 				}
 				
