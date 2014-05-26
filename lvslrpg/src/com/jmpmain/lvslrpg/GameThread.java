@@ -415,6 +415,9 @@ public class GameThread extends Thread
 		for(int i = 0; i < 20; i++){
 			particles.add(new Smoke((int) (map.city.x + 71 + Math.random()*3), (int) (map.city.y + Math.random()*3), 0));
 		}
+		
+		paused = true;
+		pauseTimer = System.currentTimeMillis();
 	}
 	
 	/**
@@ -484,6 +487,7 @@ public class GameThread extends Thread
 				//Pause resume wait
 				if(paused){
 					if(currentTimeMillis - pauseTimer <= 3000){
+						drawCall(gameCanvas);
 						continue;
 					}else{
 						paused = false;

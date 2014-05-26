@@ -115,14 +115,14 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawBitmap(city, new Rect(0, 0, 64, 64),
 				new Rect(thread.map.city.x, thread.map.city.y, thread.map.city.x + 80, thread.map.city.y + 80), paint);
 		
+		for(int i = 0; i < thread.items.size(); i++){
+			thread.items.get(i).draw(canvas);
+		}
+		
 		thread.line.draw(canvas);
 		
 		for(int i = 0; i < thread.enemies.size(); i++){
 			thread.enemies.get(i).draw(canvas);
-		}
-		
-		for(int i = 0; i < thread.items.size(); i++){
-			thread.items.get(i).draw(canvas);
 		}
 		
 		for(int i = 0; i < thread.particles.size(); i++){
@@ -137,8 +137,11 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		
 		canvas.drawText("Level: " + thread.level, 32 + paint.measureText("Coins: " + thread.coinCounter + " "), 32, paint);
 		
+		//Draw pause countdown if paused.
 		if(thread.paused){
-			canvas.drawText("" + ((3000 - System.currentTimeMillis() - thread.pauseTimer)/1000), this.getWidth()/2, this.getHeight()/2, paint);
+			paint.setTextSize(100 + ((((float)(3000 - (System.currentTimeMillis() - thread.pauseTimer))/1000.0f)%1)*50));
+			String countdown = "" + ((3000 - (System.currentTimeMillis() - thread.pauseTimer))/1000 + 1);
+			canvas.drawText(countdown, getWidth()/2 - paint.measureText(countdown)/2, getHeight()/2, paint);
 		}
 		
 		//Debug draw.
