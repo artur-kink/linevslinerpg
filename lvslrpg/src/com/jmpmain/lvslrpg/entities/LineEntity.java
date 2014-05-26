@@ -3,7 +3,9 @@ package com.jmpmain.lvslrpg.entities;
 import com.jmpmain.lvslrpg.AudioPlayer;
 import com.jmpmain.lvslrpg.GameSurface;
 import com.jmpmain.lvslrpg.GameThread;
+import com.jmpmain.lvslrpg.MainActivity;
 import com.jmpmain.lvslrpg.Map;
+import com.jmpmain.lvslrpg.R;
 import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.particles.Blood;
 
@@ -205,10 +207,16 @@ public class LineEntity extends Entity {
 			lastYCheck = (int)y;
 			
 			if(!isEmpty(x, y)){
-				health--;
-				AudioPlayer.playSound(AudioPlayer.hit);
-				for(int i = 0; i < 5; i++){
-					GameThread.instance.particles.add(new Blood((int)x*map.tileSize, (int)y*map.tileSize, time));
+				if((this == GameThread.instance.line && !GameThread.instance.haveShieldScroll) || this != GameThread.instance.line){
+					health--;
+					AudioPlayer.playSound(AudioPlayer.hit);
+					for(int i = 0; i < 5; i++){
+						GameThread.instance.particles.add(new Blood((int)x*map.tileSize, (int)y*map.tileSize, time));
+					}
+				}else{
+					GameThread.instance.shieldedDamage++;
+					if(GameThread.instance.shieldedDamage >= 10)
+						MainActivity.context.giveAchievement(R.string.achievement_shielding_my_health);
 				}
 			}
 			

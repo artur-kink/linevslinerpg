@@ -42,6 +42,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	public static Bitmap potion;
 	public static Bitmap teleport_scroll;
 	public static Bitmap speed_scroll;
+	public static Bitmap shield_scroll;
 	public static Bitmap tileset;
 	
 	public GameSurface(Context context) {
@@ -69,6 +70,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		potion = BitmapFactory.decodeResource(getResources(), R.drawable.potion);
 		teleport_scroll = BitmapFactory.decodeResource(getResources(), R.drawable.teleport_scroll);
 		speed_scroll = BitmapFactory.decodeResource(getResources(), R.drawable.speed_scroll);
+		shield_scroll = BitmapFactory.decodeResource(getResources(), R.drawable.shield_scroll);
 		tileset = BitmapFactory.decodeResource(getResources(), R.drawable.tileset);
 				
 		setFocusable(true);
@@ -134,6 +136,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawText("Coins: " + thread.coinCounter, 32, 32, paint);
 		
 		canvas.drawText("Level: " + thread.level, 32 + paint.measureText("Coins: " + thread.coinCounter + " "), 32, paint);
+		
+		if(thread.paused){
+			canvas.drawText("" + ((3000 - System.currentTimeMillis() - thread.pauseTimer)/1000), this.getWidth()/2, this.getHeight()/2, paint);
+		}
 		
 		//Debug draw.
 		if(BuildConfig.DEBUG){

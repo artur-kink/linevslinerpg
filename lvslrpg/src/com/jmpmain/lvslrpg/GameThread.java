@@ -138,12 +138,20 @@ public class GameThread extends Thread
 	/** Current game map. */
 	public Map map;
 	
+	public boolean paused;
+	public long pauseTimer;
+	
 	public long lastTeleportEnergySpawn;
 	public boolean haveTeleport;
 	
 	/** Time when speed scroll was activated. */
 	public long speedScrollTime;
 	public boolean haveSpeedScroll;
+	
+	/** Time when shield scroll was activated. */
+	public long shieldScrollTime;
+	public boolean haveShieldScroll;
+	public int shieldedDamage;
 	
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
@@ -352,6 +360,8 @@ public class GameThread extends Thread
 		line.setX(map.playerStart.x);
 		line.setY(map.playerStart.y);
 		haveTeleport = false;
+		haveShieldScroll = false;
+		haveSpeedScroll = false;
 		
 		//Setup enemies
 		enemies = new Vector<LineEntity>();
@@ -381,17 +391,20 @@ public class GameThread extends Thread
 			
 			//Make 50% of maps have a teleport scroll.
 			if(i == 0){
-				if(Math.random() >= 0.5)
+				double randomScroll = Math.random();
+				if(randomScroll >= 0.666)
 					items.add(new Item(ItemType.Teleport_Scroll, x, y));
-				else
+				else if(randomScroll >= 0.333)
 					items.add(new Item(ItemType.Speed_Scroll, x, y));
+				else
+					items.add(new Item(ItemType.Shield_Scroll, x, y));
 				continue;
 			}
 			
 			float random = (float) Math.random();
-			if(random >= 20.27)
+			if(random >= 0.27)
 				items.add(new Item(ItemType.Coin, x, y));
-			else if(random >= 20.02)
+			else if(random >= 0.02)
 				items.add(new Item(ItemType.Potion, x, y));
 			else
 				items.add(new Item(ItemType.Chest, x, y));
@@ -454,11 +467,7 @@ public class GameThread extends Thread
 			}
 			lastUpdate = System.currentTimeMillis();
 			
-			
-			if(currentScreen == Screen.MENU){
-				
-			}
-			else if(currentScreen == Screen.BATTLE){
+			if(currentScreen == Screen.BATTLE){
 				
 				long currentTimeMillis = System.currentTimeMillis();
 				
@@ -469,6 +478,15 @@ public class GameThread extends Thread
 						lastUpdateCallReset = System.currentTimeMillis();
 						ups = updateCallCount;
 						updateCallCount = 0;
+					}
+				}
+				
+				//Pause resume wait
+				if(paused){
+					if(currentTimeMillis - pauseTimer <= 3000){
+						continue;
+					}else{
+						paused = false;
 					}
 				}
 				
@@ -505,6 +523,11 @@ public class GameThread extends Thread
 							}
 							haveSpeedScroll = true;
 							speedScrollTime = currentTimeMillis;
+						}else if(items.get(i).type == ItemType.Shield_Scroll){
+							AudioPlayer.playSound(AudioPlayer.scroll);
+							haveShieldScroll = true;
+							shieldedDamage = 0;
+							shieldScrollTime = currentTimeMillis;
 						}else if(items.get(i).type == ItemType.Chest){
 						
 							chestCounter++;
@@ -517,7 +540,7 @@ public class GameThread extends Thread
 							int numitems = (int) Math.max(3, Math.random()*5);
 							for(int t = 0; t < numitems; t++){
 								particles.add(
-									new ItemParticle(items.get(i).x, items.get(i).y, ItemType.values()[(int) (Math.random()*4)], currentTimeMillis));
+									new ItemParticle(items.get(i).x, items.get(i).y, ItemType.values()[(int) (Math.random()*5)], currentTimeMillis));
 							}
 						}
 						
@@ -544,6 +567,18 @@ public class GameThread extends Thread
 				if(haveSpeedScroll){
 					if(currentTimeMillis - speedScrollTime > 2500){
 						haveSpeedScroll = false;
+					}
+				}
+				
+				if(haveShieldScroll){
+					if(currentTimeMillis - lastTeleportEnergySpawn > 100){
+						particles.add(new Energy((int)line.getX()*map.tileSize + (int)(Math.random()*16),
+							(int)line.getY()*map.tileSize + (int)(Math.random()*16), lastUpdate));
+						lastTeleportEnergySpawn = currentTimeMillis;
+					}
+					
+					if(currentTimeMillis - shieldScrollTime > 1500){
+						haveShieldScroll = false;
 					}
 				}
 				
@@ -754,6 +789,8 @@ public class GameThread extends Thread
 				setScreen(Screen.OPTIONS);
 			}else if(v == resumeButton){
 				setScreen(Screen.BATTLE);
+				paused = true;
+				pauseTimer = System.currentTimeMillis();
 			}else if(v == highscoresButton){
 				((MainActivity)MainActivity.context).openHighscores();
 			}else if(v == achievementsButton){
