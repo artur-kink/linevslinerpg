@@ -10,12 +10,13 @@ public class Map {
 
 	public enum TileType{
 		Empty,
-		Ground,
+		Grass,
 		Water,
 		Sand,
 		Forest,
 		Mountain,
-		Hill
+		Hill,
+		Snow
 	}
 	
 	/** Tile type array. The map array. */

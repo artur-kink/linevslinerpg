@@ -16,45 +16,50 @@ public class MapGenerator {
 	}
 	
 	/**
-	 * Get color of tile based on type.
+	 * Get rect of tile image based on type.
 	 */
-	private static Paint GetTypeColor(MapTheme theme, TileType type){
-		Paint paint = new Paint();
+	private static Rect GetTileRect(MapTheme theme, TileType type){
 		
-		int r =  (int)((Math.random()-0.5f)*10);
-		int g =  (int)((Math.random()-0.5f)*10);
-		int b =  (int)((Math.random()-0.5f)*10);
+		if(type == TileType.Hill)
+			return new Rect(0, 128, 64, 192);
 		
 		if(theme == MapTheme.Temperate){
-			if(type == Map.TileType.Ground)
-				paint.setARGB(255, 25 + r, 200 + g, 25 + b);
+			if(type == Map.TileType.Grass)
+				return new Rect(64, 128, 80, 144);
 			else if(type == TileType.Water)
-				paint.setARGB(255, 25 + r, 25 + g, 200 + b);
+				return new Rect(64, 144, 80, 160);
 			else if(type == TileType.Sand)
-				paint.setARGB(255, 200 + r, 200 + g, 20 + b);
+				return new Rect(96, 128, 112, 144);
 			else if(type == TileType.Mountain)
-				paint.setARGB(255, 128 + r, 128 + g, 128 + b);
+				return new Rect(64, 64, 128, 128);
+			else if(type == TileType.Forest)
+				return new Rect(64, 0, 128, 64);
 		}else if(theme == MapTheme.Desert){
-			if(type == Map.TileType.Ground)
-				paint.setARGB(255, 25 + r, 200 + g, 25 + b);
+			if(type == Map.TileType.Grass)
+				return new Rect(80, 128, 96, 144);
 			else if(type == TileType.Water)
-				paint.setARGB(255, 25 + r, 25 + g, 200 + b);
+				return new Rect(64, 144, 80, 160);
 			else if(type == TileType.Sand)
-				paint.setARGB(255, 200 + r, 200 + g, 20 + b);
+				return new Rect(96, 128, 112, 144);
 			else if(type == TileType.Mountain)
-				paint.setARGB(255, 192 + r, 139 + g, 5 + b);
+				return new Rect(0, 64, 64, 128);
+			else if(type == TileType.Forest)
+				return new Rect(0, 0, 64, 64);
 		}else if(theme == MapTheme.Winter){
-			if(type == Map.TileType.Ground)
-				paint.setARGB(255, 180 + r, 180 + g, 180 + b);
+			if(type == Map.TileType.Grass)
+				return new Rect(64, 128, 80, 144);
 			else if(type == TileType.Water)
-				paint.setARGB(255, 0, 128 + g, 170 + b);
+				return new Rect(80, 144, 96, 160);
 			else if(type == TileType.Sand)
-				paint.setARGB(255, 100 + r, 100 + g, 100 + b);
+				return new Rect(128, 128, 144, 144);
+			else if(type == TileType.Snow)
+				return new Rect(112, 128, 128, 144);
 			else if(type == TileType.Mountain)
-				paint.setARGB(255, 192 + r, 139 + g, 5 + b);
+				return new Rect(128, 64, 192, 128);
+			else if(type == TileType.Forest)
+				return new Rect(128, 0, 192, 64);
 		}
-		
-		return paint;
+		return new Rect();
 	}
 	
 	/**
@@ -81,10 +86,12 @@ public class MapGenerator {
 		//Set player start
 		map.playerStart = new Point(map.width/2, map.height - 5);
 		
-		TileType ground = TileType.Ground;
+		TileType ground = TileType.Grass;
 		
 		if(theme == MapTheme.Desert)
 			ground = TileType.Sand;
+		else if(theme == MapTheme.Winter)
+			ground = TileType.Snow;
 		
 		CreateGround(map, ground);
 			
@@ -95,7 +102,7 @@ public class MapGenerator {
 		}
 		
 		//Create lakes
-		int numLakes = Math.max(3, (int) (Math.random()*(9.0f*worldSize)));
+		int numLakes = Math.max(3, (int) (Math.random()*(11.0f*worldSize)));
 		for(int i = 0; i < numLakes; i++){
 			int x = 0;
 			int y = 0;
@@ -126,7 +133,7 @@ public class MapGenerator {
 		
 		//Create shores around water
 		if(theme == MapTheme.Desert)
-			CreateBorder(map, TileType.Water, TileType.Ground, 2);
+			CreateBorder(map, TileType.Water, TileType.Grass, 2);
 		else
 			CreateBorder(map, TileType.Water, TileType.Sand, 3);
 		
@@ -298,35 +305,28 @@ public class MapGenerator {
 			}
 		}
 	
-		TileType background = TileType.Ground;
+		TileType background = TileType.Grass;
 		if(theme == MapTheme.Desert)
 			background = TileType.Sand;
+		else if(theme == MapTheme.Winter)
+			background = TileType.Snow;
+		
+		Paint p = new Paint();
+		p.setARGB(255, 255, 255, 255);
+		
 		
 		//Draw background
 		for(int r = 0; r < map.height; r++){
 			for(int c = 0; c < map.width; c++){
-				if(map.getTile(c, r) == TileType.Ground && theme == MapTheme.Temperate){
-					Paint p = new Paint();
-					p.setColor(Color.WHITE);
-					map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(64, 128, 80, 144), new Rect(c*map.tileSize, r*map.tileSize,
-						c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize), p);
-				}else if(map.getTile(c, r) == TileType.Sand || 
-						map.getTile(c, r) == TileType.Ground || 
-						map.getTile(c, r) == TileType.Water){
-					map.lineCanvas.drawRect(c*map.tileSize, r*map.tileSize,
-						c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize,
-						GetTypeColor(theme, map.getTile(c, r)));
-				}else{
-					if(theme == MapTheme.Temperate){
-						Paint p = new Paint();
-						p.setColor(Color.WHITE);
-						map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(64, 128, 80, 144), new Rect(c*map.tileSize, r*map.tileSize,
+				if(map.getTile(c, r) == TileType.Sand || 
+						map.getTile(c, r) == TileType.Grass || 
+						map.getTile(c, r) == TileType.Water || 
+						map.getTile(c, r) == TileType.Snow){
+					map.lineCanvas.drawBitmap(GameSurface.tileset, GetTileRect(theme, map.getTile(c, r)), new Rect(c*map.tileSize, r*map.tileSize,
 							c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize), p);
-					}else{
-						map.lineCanvas.drawRect(c*map.tileSize, r*map.tileSize,
-							c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize,
-							GetTypeColor(theme, background));
-					}
+				}else{
+					map.lineCanvas.drawBitmap(GameSurface.tileset, GetTileRect(theme, background), new Rect(c*map.tileSize, r*map.tileSize,
+							c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize), p);
 				}
 				
 			}
@@ -336,18 +336,7 @@ public class MapGenerator {
 			for(int c = 0; c < map.width; c++){
 				if(drawMap[r][c] == false){
 					if(map.getTile(c, r) == TileType.Mountain){
-						Paint p = new Paint();
-						p.setARGB(255, 255, 255, 255);
-						
-						Rect srcRect = null;
-						if(theme == MapTheme.Temperate)
-							srcRect = new Rect(64, 64, 128, 128);
-						else if(theme == MapTheme.Desert)
-							srcRect = new Rect(0, 64, 64, 128);
-						else if(theme == MapTheme.Winter)
-							srcRect = new Rect(128, 64, 192, 128);
-						
-						map.lineCanvas.drawBitmap(GameSurface.tileset, srcRect, new Rect(c*map.tileSize, r*map.tileSize,
+						map.lineCanvas.drawBitmap(GameSurface.tileset, GetTileRect(theme, map.getTile(c, r)), new Rect(c*map.tileSize, r*map.tileSize,
 							c*map.tileSize + map.tileSize*5, r*map.tileSize + map.tileSize*5), p);
 						
 						for(int w = 0; w < 5; w++){
@@ -359,9 +348,7 @@ public class MapGenerator {
 							}
 						}
 					}else if(map.getTile(c, r) == TileType.Hill){
-						Paint p = new Paint();
-						p.setARGB(255, 255, 255, 255);
-						map.lineCanvas.drawBitmap(GameSurface.tileset, new Rect(0, 128, 64, 192), new Rect(c*map.tileSize, r*map.tileSize,
+						map.lineCanvas.drawBitmap(GameSurface.tileset, GetTileRect(theme, map.getTile(c, r)), new Rect(c*map.tileSize, r*map.tileSize,
 								c*map.tileSize + map.tileSize*5, r*map.tileSize + map.tileSize*5), p);
 						
 						for(int w = 0; w < 5; w++){
@@ -373,17 +360,7 @@ public class MapGenerator {
 							}
 						}
 					}else if(map.getTile(c, r) == TileType.Forest){
-						Paint p = new Paint();
-						p.setARGB(255, 255, 255, 255);
-						Rect srcRect = null;
-						if(theme == MapTheme.Temperate)
-							srcRect = new Rect(64, 0, 128, 64);
-						else if(theme == MapTheme.Desert)
-							srcRect = new Rect(0, 0, 64, 64);
-						else if(theme == MapTheme.Winter)
-							srcRect = new Rect(128, 0, 192, 64);
-
-						map.lineCanvas.drawBitmap(GameSurface.tileset, srcRect, new Rect(c*map.tileSize, r*map.tileSize,
+						map.lineCanvas.drawBitmap(GameSurface.tileset, GetTileRect(theme, map.getTile(c, r)), new Rect(c*map.tileSize, r*map.tileSize,
 								c*map.tileSize + map.tileSize*4, r*map.tileSize + map.tileSize*4), p);
 						
 						for(int w = 0; w < 4; w++){
@@ -395,9 +372,8 @@ public class MapGenerator {
 							}
 						}
 					}else if(map.getTile(c, r) != background){
-						map.lineCanvas.drawRect(c*map.tileSize, r*map.tileSize,
-							c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize,
-							GetTypeColor(theme, map.getTile(c, r)));
+						map.lineCanvas.drawBitmap(GameSurface.tileset, GetTileRect(theme, map.getTile(c, r)), new Rect(c*map.tileSize, r*map.tileSize,
+							c*map.tileSize + map.tileSize, r*map.tileSize + map.tileSize), p);
 						drawMap[r][c] = true;
 					}
 				}
