@@ -11,6 +11,7 @@ import com.jmpmain.lvslrpg.particles.Blood;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
@@ -254,6 +255,10 @@ public class LineEntity extends Entity {
 					new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 16, 
 							(int)(x*map.tileSize)- 16 + 32, (int)(y*map.tileSize) - 16 + 32), p);
 		}else{
+			
+			if(this == GameThread.instance.line && GameThread.instance.haveShieldScroll){
+				p.setARGB(128, 255, 0, 0);
+			}
 			//Draw sprite.
 			canvas.drawBitmap(character, new Rect(frame*32, 0, frame*32 + 32, 32),
 					new Rect((int)(x*map.tileSize) - 16, (int)(y*map.tileSize) - 16, 

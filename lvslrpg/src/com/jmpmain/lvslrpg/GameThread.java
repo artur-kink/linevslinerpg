@@ -129,6 +129,8 @@ public class GameThread extends Thread
 	
 	public static boolean SoundOn;
 	
+	public long lastTouchTime;
+	
 	public int startTouchX;
 	public int startTouchY;
 	
@@ -269,13 +271,14 @@ public class GameThread extends Thread
 		leftButton.setImageResource(R.drawable.arrow_l);
 		leftButton.setScaleType(ScaleType.FIT_CENTER);
 		leftButton.setBackgroundColor(Color.TRANSPARENT);
-		
+		leftButton.setAlpha(0.5f);
 		
 		rightButton = new ImageButton(MainActivity.context);
 		rightButton.setOnClickListener(this);
 		rightButton.setImageResource(R.drawable.arrow_r);
 		rightButton.setScaleType(ScaleType.FIT_CENTER);
 		rightButton.setBackgroundColor(Color.TRANSPARENT);
+		rightButton.setAlpha(0.5f);
 		
 		startButton.setTypeface(MainActivity.pixelFont);
 		resumeButton.setTypeface(MainActivity.pixelFont);
@@ -323,8 +326,10 @@ public class GameThread extends Thread
 			MainActivity.context.giveAchievement(R.string.achievement_adventurer);
 		}else if(level == 25){
 			MainActivity.context.giveAchievement(R.string.achievement_explorer);
-		}else if(level == 25){
+		}else if(level == 50){
 			MainActivity.context.giveAchievement(R.string.achievement_just_lucky);
+		}else if(level == 100){
+			MainActivity.context.giveAchievement(R.string.achievement_bigg_leveler);
 		}
 		
 		//Check for clearing the fields achievement
@@ -359,7 +364,7 @@ public class GameThread extends Thread
 		line.setDirection(0, -1);
 		line.setX(map.playerStart.x);
 		line.setY(map.playerStart.y);
-		haveTeleport = false;
+		
 		haveShieldScroll = false;
 		haveSpeedScroll = false;
 		
@@ -581,7 +586,7 @@ public class GameThread extends Thread
 						lastTeleportEnergySpawn = currentTimeMillis;
 					}
 					
-					if(currentTimeMillis - shieldScrollTime > 1500){
+					if(currentTimeMillis - shieldScrollTime > 2500){
 						haveShieldScroll = false;
 					}
 				}
@@ -682,7 +687,12 @@ public class GameThread extends Thread
 		 		}
 		 		else if(currentScreen == Screen.BATTLE){
 		 			if(gameControls == Controls.Button_Clockwise || gameControls == Controls.Button_Static){
-		 				int buttonSize = (int) Math.max(32, ((float)gameSurface.getWidth())*0.125);
+		 				int buttonSize = (int) Math.max(32, ((float)gameSurface.getWidth())*0.22);
+		 				int buttonPadding = (int) Math.max(32, ((float)gameSurface.getWidth())*0.05);
+		 				
+		 				rightButton.setPadding(buttonPadding, buttonPadding, buttonPadding, buttonPadding);
+		 				leftButton.setPadding(buttonPadding, buttonPadding, buttonPadding, buttonPadding);
+		 				
 			 			LayoutParams params = new LayoutParams(buttonSize, buttonSize);
 			 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
@@ -905,23 +915,24 @@ public class GameThread extends Thread
 			touchY = (int) event.getY();
 		}
 		
-		if(haveTeleport && event.getAction() == MotionEvent.ACTION_DOWN){
-			
+		if(haveTeleport && event.getAction() == MotionEvent.ACTION_DOWN &&
+			System.currentTimeMillis() - lastTouchTime < 250){
+
 			int tapX = touchX/map.tileSize;
 			int tapY = touchY/map.tileSize;
 
 			int newX = tapX;
 			int newY = tapY;
-			
+
 			int freeSpaces = 0;
 			//Find optimal position to place player
 			for(int w = -2; w < 3; w++){
 				for(int h = -2; h < 3; h++){
 					if(tapX + w < map.width && tapX + w >= 0 &&
-						tapY + h < map.height && tapY + h >= 0){
-					
+							tapY + h < map.height && tapY + h >= 0){
+
 						int spaceCounter = 0;
-						
+
 						for(int i = 0; i < 5; i++){
 							if(tapX + w + i*Math.signum(line.getXVelocity()) < map.width && tapX + w + i*Math.signum(line.getXVelocity()) >= 0 &&
 									tapY + h + i*Math.signum(line.getYVelocity()) < map.height && tapY + h + i*Math.signum(line.getYVelocity()) >= 0){
@@ -932,14 +943,14 @@ public class GameThread extends Thread
 								break;
 							}
 						}
-						
+
 						if(spaceCounter > freeSpaces){
 							freeSpaces = spaceCounter;
 							newX = tapX + w;
 							newY = tapY + h;
 						}else if(spaceCounter == freeSpaces){
 							if(Math.abs(tapX + w - newX) <= Math.abs(tapX - newX) &&
-								Math.abs(tapY + h - newY) <= Math.abs(tapY - newY)){
+									Math.abs(tapY + h - newY) <= Math.abs(tapY - newY)){
 								newX = tapX + w;
 								newY = tapY + h;
 							}
@@ -947,11 +958,11 @@ public class GameThread extends Thread
 					}
 				}
 			}
-			
-			
+
+
 			int dx = (int) (newX - line.getX());
 			int dy = (int) (newY - line.getY());
-			
+
 			//Create a line of energy particles between teleport locations.
 			if(Math.abs(dx) > Math.abs(dy)){
 				if(dx > 0){
@@ -982,18 +993,18 @@ public class GameThread extends Thread
 					}
 				}
 			}
-			
+
 			line.setX(newX);
 			line.setY(newY);
 			haveTeleport = false;
 			AudioPlayer.playSound(AudioPlayer.teleport);
-			
+
 			if(Math.abs(dx) <= 1 && Math.abs(dy) <= 1){
 				MainActivity.context.giveAchievement(R.string.achievement_not_going_anywhere);
 			}else if(Math.abs(dx) + Math.abs(dy) >= ((float)(map.width + map.height))*0.95f){
 				MainActivity.context.giveAchievement(R.string.achievement_were_going_places);
 			}
-			
+
 		}else if(gameControls == Controls.Swipe && event.getAction() == MotionEvent.ACTION_UP){
 			//Handle swipe input if playing with swipe controls.
 			int xDelta = startTouchX - (int) event.getX();
@@ -1018,6 +1029,10 @@ public class GameThread extends Thread
 				//If player is moving in X direction and swipe was in y direction.
 				line.setDirection(0, -Math.signum(yDelta));
 			}
+		}
+		
+		if(event.getAction() == MotionEvent.ACTION_DOWN){
+			lastTouchTime = System.currentTimeMillis();
 		}
 	}
 	

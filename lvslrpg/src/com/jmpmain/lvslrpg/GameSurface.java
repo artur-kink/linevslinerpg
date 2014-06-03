@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.SurfaceHolder;
@@ -130,18 +131,21 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		}
 		
 		canvas.drawBitmap(coin, 0, 0, paint);
-		paint.setTextSize(32);
-		paint.setTypeface(MainActivity.pixelFont);
-		paint.setARGB(255, 255, 217, 00);
-		canvas.drawText("Coins: " + thread.coinCounter, 32, 32, paint);
 		
-		canvas.drawText("Level: " + thread.level, 32 + paint.measureText("Coins: " + thread.coinCounter + " "), 32, paint);
+		Paint textPain = new Paint();
+		textPain.setShadowLayer(2.0f, 0.0f, 2.0f, Color.BLACK);
+		textPain.setTextSize(32);
+		textPain.setTypeface(MainActivity.pixelFont);
+		textPain.setARGB(255, 255, 217, 00);
+		canvas.drawText("Coins: " + thread.coinCounter, 32, 32, textPain);
+		
+		canvas.drawText("Level: " + thread.level, 32 + textPain.measureText("Coins: " + thread.coinCounter + " "), 32, textPain);
 		
 		//Draw pause countdown if paused.
 		if(thread.paused){
-			paint.setTextSize(100 + ((((float)(3000 - (System.currentTimeMillis() - thread.pauseTimer))/1000.0f)%1)*50));
+			textPain.setTextSize(100 + ((((float)(3000 - (System.currentTimeMillis() - thread.pauseTimer))/1000.0f)%1)*50));
 			String countdown = "" + ((3000 - (System.currentTimeMillis() - thread.pauseTimer))/1000 + 1);
-			canvas.drawText(countdown, getWidth()/2 - paint.measureText(countdown)/2, getHeight()/2, paint);
+			canvas.drawText(countdown, getWidth()/2 - textPain.measureText(countdown)/2, getHeight()/2, textPain);
 		}
 		
 		//Debug draw.
