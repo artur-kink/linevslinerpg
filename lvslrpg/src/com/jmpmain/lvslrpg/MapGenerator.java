@@ -2,7 +2,6 @@ package com.jmpmain.lvslrpg;
 
 import com.jmpmain.lvslrpg.Map.TileType;
 
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;

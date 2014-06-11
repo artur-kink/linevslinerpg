@@ -17,6 +17,8 @@ public class Item extends Entity {
 	
 	private Bitmap icon;
 	
+	public boolean pickup;
+	
 	public enum ItemType{
 		
 		Coin(0),
@@ -24,7 +26,8 @@ public class Item extends Entity {
 		Teleport_Scroll(2),
 		Speed_Scroll(3),
 		Shield_Scroll(4),
-		Chest(5);
+		Bomb(5),
+		Chest(6);
 		
 		public final int value;
 		
@@ -44,6 +47,12 @@ public class Item extends Entity {
 		height = 32;
 		
 		icon = GetItemIcon(t);
+		
+		if(t == ItemType.Coin || t == ItemType.Chest){
+			pickup = false;
+		}else{
+			pickup = true;
+		}
 	}
 	
 	public static Bitmap GetItemIcon(ItemType type){
@@ -57,6 +66,8 @@ public class Item extends Entity {
 			return GameSurface.speed_scroll;
 		else if(type == ItemType.Shield_Scroll)
 			return GameSurface.shield_scroll;
+		else if(type == ItemType.Bomb)
+			return GameSurface.bomb;
 		else if(type == ItemType.Chest)
 			return GameSurface.chest;
 		return null;

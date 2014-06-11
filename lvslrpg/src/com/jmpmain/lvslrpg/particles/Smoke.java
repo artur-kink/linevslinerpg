@@ -20,6 +20,7 @@ public class Smoke extends Particle {
 	float xPosition;
 	
 	public Smoke(int x, int y, long time){
+		destroy = false;
 		spawnX = x;
 		xPosition = spawnX;
 		spawnY = y;
@@ -28,12 +29,13 @@ public class Smoke extends Particle {
 		paint = new Paint();
 		paint.setARGB(64, 0, 0, 0);
 		liveTime = 0;
+		createTime = 0;
 	}
 	
 	@Override
 	public void update(long time) {
 		
-		int delta = (int) (time - createTime);
+		long delta = time - createTime;
 		if(delta >= liveTime){
 			particle = new Rect(spawnX, spawnY, spawnX+3, spawnY+3);
 			xPosition = spawnX;

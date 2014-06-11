@@ -1,16 +1,15 @@
 package com.jmpmain.lvslrpg;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.games.Games;
 
-import com.jmpmain.lvslrpg.Map.TileType;
 import com.jmpmain.lvslrpg.entities.*;
 import com.jmpmain.lvslrpg.entities.Item.ItemType;
+import com.jmpmain.lvslrpg.particles.Blood;
+import com.jmpmain.lvslrpg.particles.Bomb;
 import com.jmpmain.lvslrpg.particles.Energy;
 import com.jmpmain.lvslrpg.particles.Heal;
 import com.jmpmain.lvslrpg.particles.ItemParticle;
@@ -19,16 +18,16 @@ import com.jmpmain.lvslrpg.particles.Smoke;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -36,7 +35,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView.ScaleType;
@@ -105,6 +103,12 @@ public class GameThread extends Thread
 	private ImageButton leftButton;
 	private ImageButton rightButton;
 	
+	private ImageButton itemButtons[];
+	private Bitmap itemButtonBitmaps[];
+	private Canvas itemButtonCanvas[];
+	private ItemType itemInventory[];
+	private int itemAmounts[];
+	
 	/** Thread running state. */
 	public boolean running;
 	
@@ -154,6 +158,8 @@ public class GameThread extends Thread
 	public long shieldScrollTime;
 	public boolean haveShieldScroll;
 	public int shieldedDamage;
+	
+	public boolean haveBomb;
 	
 	public LineEntity line;
 	public Vector<LineEntity> enemies;
@@ -280,6 +286,29 @@ public class GameThread extends Thread
 		rightButton.setBackgroundColor(Color.TRANSPARENT);
 		rightButton.setAlpha(0.5f);
 		
+		itemButtons = new ImageButton[5];
+		itemButtonBitmaps = new Bitmap[5];
+		itemButtonCanvas = new Canvas[5];
+		
+		itemInventory = new ItemType[5];
+		itemAmounts = new int[5];
+			
+		for(int i = 0; i < 5; i++){
+			itemButtons[i] = new ImageButton(MainActivity.context);
+			itemButtons[i].setOnClickListener(this);
+			itemButtons[i].setScaleType(ScaleType.FIT_CENTER);
+			itemButtons[i].setBackgroundColor(Color.TRANSPARENT);
+			itemButtons[i].setAlpha(0.9f);
+			itemButtons[i].setId(100+i);
+			
+			itemButtonBitmaps[i] = Bitmap.createBitmap(32, 32, Config.ARGB_8888);
+			itemButtons[i].setImageBitmap(itemButtonBitmaps[i]);
+			
+			itemButtonCanvas[i] = new Canvas(itemButtonBitmaps[i]);
+			
+			itemAmounts[i] = 0;
+		}
+		
 		startButton.setTypeface(MainActivity.pixelFont);
 		resumeButton.setTypeface(MainActivity.pixelFont);
 		optionsButton.setTypeface(MainActivity.pixelFont);
@@ -300,6 +329,9 @@ public class GameThread extends Thread
 	 */
 	public void resetGame(){
 		
+		haveTeleport = false;
+		haveBomb = false;
+		
 		line = new PlayerLineEntity(0, 0);
 		line.character = GameSurface.character;
 		line.setColor(128, 0, 255, 0);
@@ -310,6 +342,11 @@ public class GameThread extends Thread
 		chestCounter = 0;
 		
 		setTurnButtons();
+		
+		for(int i = 0; i < 5; i++){
+			itemAmounts[i] = 0;
+		}
+		drawItems();
 		
 		newLevel();
 	}
@@ -394,7 +431,7 @@ public class GameThread extends Thread
 			x = x*map.tileSize;
 			y = y*map.tileSize;
 			
-			//Make 50% of maps have a teleport scroll.
+			//Make all maps have some sort of scroll.
 			if(i == 0){
 				double randomScroll = Math.random();
 				if(randomScroll >= 0.666)
@@ -407,10 +444,12 @@ public class GameThread extends Thread
 			}
 			
 			float random = (float) Math.random();
-			if(random >= 0.27)
+			if(random >= 0.29)
 				items.add(new Item(ItemType.Coin, x, y));
-			else if(random >= 0.02)
+			else if(random >= 0.07)
 				items.add(new Item(ItemType.Potion, x, y));
+			else if(random >= 0.02)
+				items.add(new Item(ItemType.Bomb, x, y));
 			else
 				items.add(new Item(ItemType.Chest, x, y));
 		}
@@ -508,35 +547,13 @@ public class GameThread extends Thread
 					if(new Rect((int)line.getX()*map.tileSize - 16, (int)line.getY()*map.tileSize- 16, (int)line.getX()*map.tileSize+16, (int)line.getY()*map.tileSize+16).intersect(
 							new Rect(items.get(i).x, items.get(i).y, items.get(i).x + items.get(i).width, items.get(i).y + items.get(i).height))){
 						
-						if(items.get(i).type == ItemType.Potion){
-							line.addHealth(3);
-							AudioPlayer.playSound(AudioPlayer.potion);
-							for(int p = 0; p < 3; p++){
-								particles.add(new Heal((int) (line.getX()*map.tileSize + (Math.random()-0.5)*32),
-									(int) (line.getY()*map.tileSize + (Math.random()-0.5)*32), currentTimeMillis));
-							}
-						}else if(items.get(i).type == ItemType.Coin){
+						if(items.get(i).type == ItemType.Coin){
 							AudioPlayer.playSound(AudioPlayer.coin);
 							coinCounter++;
 							
 							if(coinCounter == 100){
 								MainActivity.context.giveAchievement(R.string.achievement_bag_o_coin);
 							}
-						}else if(items.get(i).type == ItemType.Teleport_Scroll){
-							AudioPlayer.playSound(AudioPlayer.scroll);
-							haveTeleport = true;
-						}else if(items.get(i).type == ItemType.Speed_Scroll){
-							AudioPlayer.playSound(AudioPlayer.scroll);
-							if(haveSpeedScroll){
-								MainActivity.context.giveAchievement(R.string.achievement_gotta_go_fast);
-							}
-							haveSpeedScroll = true;
-							speedScrollTime = currentTimeMillis;
-						}else if(items.get(i).type == ItemType.Shield_Scroll){
-							AudioPlayer.playSound(AudioPlayer.scroll);
-							haveShieldScroll = true;
-							shieldedDamage = 0;
-							shieldScrollTime = currentTimeMillis;
 						}else if(items.get(i).type == ItemType.Chest){
 						
 							chestCounter++;
@@ -549,8 +566,32 @@ public class GameThread extends Thread
 							int numitems = (int) Math.max(3, Math.random()*5);
 							for(int t = 0; t < numitems; t++){
 								particles.add(
-									new ItemParticle(items.get(i).x, items.get(i).y, ItemType.values()[(int) (Math.random()*5)], currentTimeMillis));
+									new ItemParticle(items.get(i).x, items.get(i).y, ItemType.values()[(int) (Math.random()*6)], currentTimeMillis));
 							}
+						}else if(items.get(i).pickup){
+							boolean foundItemSlot = false;
+							for(int j = 0; j < 5; j++){
+								if(itemAmounts[j] > 0 && itemInventory[j] == items.get(i).type){
+									itemAmounts[j]++;
+									foundItemSlot = true;
+									break;
+								}
+							}
+							
+							if(!foundItemSlot){
+								for(int j = 0; j < 5; j++){
+									if(itemAmounts[j] == 0){
+										itemInventory[j] = items.get(i).type;
+										itemAmounts[j] = 1;
+										
+										if(j == 4)
+											MainActivity.context.giveAchievement(R.string.achievement_collector);
+										
+										break;
+									}
+								}
+							}
+							drawItems();
 						}
 						
 						items.remove(i);
@@ -623,7 +664,29 @@ public class GameThread extends Thread
 						
 						if(particles.get(i) instanceof ItemParticle){
 							items.add(new Item(((ItemParticle)particles.get(i)).type, (int)((ItemParticle)particles.get(i)).x,
-									(int)((ItemParticle)particles.get(i)).y));
+								(int)((ItemParticle)particles.get(i)).y));
+						}else if(particles.get(i) instanceof Bomb){
+							//Check for collision with enemies.
+							int bombX = (int)((Bomb)particles.get(i)).destX;
+							int bombY = (int)((Bomb)particles.get(i)).destY;
+							Rect bombRect = new Rect(bombX - 64, bombY - 64, bombX + 96, bombY + 96);
+							int numKilled = 0;
+							for(int e = 0; e < enemies.size(); e++){
+								Rect enemyRect = new Rect((int)enemies.get(e).getX()*map.tileSize, (int)enemies.get(e).getY()*map.tileSize,
+									(int)enemies.get(e).getX()*map.tileSize + 32, (int)enemies.get(e).getY()*map.tileSize + 32);
+								if(bombRect.intersect(enemyRect)){
+									enemies.get(e).health = 0;
+									numKilled++;
+								}
+							}
+							
+							if(numKilled > 1){
+								MainActivity.context.giveAchievement(R.string.achievement_bobombed);
+							}
+							
+							for(int p = 0; p < 20; p++)
+								particles.add(new Blood(bombX, bombY, System.currentTimeMillis()));
+							AudioPlayer.playSound(AudioPlayer.dead);
 						}
 						
 						particles.remove(i);
@@ -640,6 +703,38 @@ public class GameThread extends Thread
 		}
 	}
 
+	public void drawItems(){
+		Paint p = new Paint();
+		
+		for(int i = 0; i < 5; i++){
+			p.setARGB(64, 0, 0, 0);
+			itemButtonCanvas[i].drawColor(0, Mode.CLEAR);
+			itemButtonCanvas[i].drawColor(p.getColor());
+			p.setColor(Color.WHITE);
+			
+			if(itemAmounts[i] > 0){
+				itemButtonCanvas[i].drawBitmap(Item.GetItemIcon(itemInventory[i]), 0, 0, p);
+				p.setARGB(255, 44, 44, 44);
+				p.setTextSize(16);
+				p.setTypeface(MainActivity.pixelFont);
+				itemButtonCanvas[i].drawText("" + itemAmounts[i],
+					itemButtonCanvas[i].getWidth() - p.measureText("" + itemAmounts[i]),
+					32, p);
+			}
+			itemButtonCanvas[i].drawBitmap(GameSurface.item_slot, 0, 0, p);
+		}
+		
+		((MainActivity)MainActivity.context).runOnUiThread(new Runnable() {
+			 @Override
+		     public void run() {
+				 itemButtons[0].invalidate();
+				 itemButtons[1].invalidate();
+				 itemButtons[2].invalidate();
+				 itemButtons[3].invalidate();
+				 itemButtons[4].invalidate();
+			 }
+		});
+	}
 
 	/**
 	 * Change screens.
@@ -690,6 +785,11 @@ public class GameThread extends Thread
 		 				int buttonSize = (int) Math.max(32, ((float)gameSurface.getWidth())*0.22);
 		 				int buttonPadding = (int) Math.max(32, ((float)gameSurface.getWidth())*0.05);
 		 				
+		 				if(gameSurface.getWidth() > gameSurface.getHeight()){
+		 					buttonSize = (int) Math.max(32, ((float)gameSurface.getHeight())*0.22);
+		 					buttonPadding = (int) Math.max(32, ((float)gameSurface.getHeight())*0.05);
+			 			}
+		 				
 		 				rightButton.setPadding(buttonPadding, buttonPadding, buttonPadding, buttonPadding);
 		 				leftButton.setPadding(buttonPadding, buttonPadding, buttonPadding, buttonPadding);
 		 				
@@ -704,6 +804,38 @@ public class GameThread extends Thread
 			 			uiLayout.addView(leftButton, params);
 			 			setTurnButtons();
 		 			}
+		 			
+		 			int itemButtonSize = (int) Math.max(32, ((float)gameSurface.getWidth())*0.12);
+		 			if(gameSurface.getWidth() > gameSurface.getHeight()){
+		 				itemButtonSize = (int) Math.max(32, ((float)gameSurface.getHeight())*0.12);
+		 			}
+		 			LayoutParams params;
+		 			params = new LayoutParams(itemButtonSize, itemButtonSize);
+		 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			 		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 		uiLayout.addView(itemButtons[2], params);
+			 		
+			 		params = new LayoutParams(itemButtonSize, itemButtonSize);
+		 			params.addRule(RelativeLayout.RIGHT_OF, itemButtons[2].getId());
+			 		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 		uiLayout.addView(itemButtons[3], params);
+			 		
+			 		params = new LayoutParams(itemButtonSize, itemButtonSize);
+		 			params.addRule(RelativeLayout.RIGHT_OF, itemButtons[3].getId());
+			 		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 		uiLayout.addView(itemButtons[4], params);
+			 		
+			 		params = new LayoutParams(itemButtonSize, itemButtonSize);
+		 			params.addRule(RelativeLayout.LEFT_OF, itemButtons[2].getId());
+			 		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 		uiLayout.addView(itemButtons[1], params);
+			 		
+			 		params = new LayoutParams(itemButtonSize, itemButtonSize);
+		 			params.addRule(RelativeLayout.LEFT_OF, itemButtons[1].getId());
+			 		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			 		uiLayout.addView(itemButtons[0], params);
+			 		
+			 		drawItems();
 		 		}
 		    }
 		});
@@ -869,6 +1001,40 @@ public class GameThread extends Thread
 				}
 				setTurnButtons();
 			}
+			
+			
+			for(int i = 0; i < 5; i++){
+				if(v == itemButtons[i] && itemAmounts[i] > 0){
+					if(itemInventory[i] == ItemType.Potion){
+						line.addHealth(3);
+						AudioPlayer.playSound(AudioPlayer.potion);
+						for(int p = 0; p < 3; p++){
+							particles.add(new Heal((int) (line.getX()*map.tileSize + (Math.random()-0.5)*32),
+								(int) (line.getY()*map.tileSize + (Math.random()-0.5)*32), System.currentTimeMillis()));
+						}
+					}else if(itemInventory[i] == ItemType.Teleport_Scroll){
+						AudioPlayer.playSound(AudioPlayer.scroll);
+						haveTeleport = true;
+					}else if(itemInventory[i] == ItemType.Speed_Scroll){
+						AudioPlayer.playSound(AudioPlayer.scroll);
+						if(haveSpeedScroll){
+							MainActivity.context.giveAchievement(R.string.achievement_gotta_go_fast);
+						}
+						haveSpeedScroll = true;
+						speedScrollTime = System.currentTimeMillis();
+					}else if(itemInventory[i] == ItemType.Shield_Scroll){
+						AudioPlayer.playSound(AudioPlayer.scroll);
+						haveShieldScroll = true;
+						shieldedDamage = 0;
+						shieldScrollTime = System.currentTimeMillis();
+					}else if(itemInventory[i] == ItemType.Bomb){
+						haveBomb = true;
+					}
+					itemAmounts[i]--;
+					drawItems();
+				}
+			}
+			
 		}
 	}
 	
@@ -915,8 +1081,7 @@ public class GameThread extends Thread
 			touchY = (int) event.getY();
 		}
 		
-		if(haveTeleport && event.getAction() == MotionEvent.ACTION_DOWN &&
-			System.currentTimeMillis() - lastTouchTime < 250){
+		if(haveTeleport && event.getAction() == MotionEvent.ACTION_DOWN){
 
 			int tapX = touchX/map.tileSize;
 			int tapY = touchY/map.tileSize;
@@ -958,8 +1123,7 @@ public class GameThread extends Thread
 					}
 				}
 			}
-
-
+			
 			int dx = (int) (newX - line.getX());
 			int dy = (int) (newY - line.getY());
 
@@ -1005,6 +1169,9 @@ public class GameThread extends Thread
 				MainActivity.context.giveAchievement(R.string.achievement_were_going_places);
 			}
 
+		}else if(haveBomb && event.getAction() == MotionEvent.ACTION_DOWN){
+			particles.add(new Bomb(line.getX()*map.tileSize, line.getY()*map.tileSize, event.getX(), event.getY()));
+			haveBomb = false;
 		}else if(gameControls == Controls.Swipe && event.getAction() == MotionEvent.ACTION_UP){
 			//Handle swipe input if playing with swipe controls.
 			int xDelta = startTouchX - (int) event.getX();

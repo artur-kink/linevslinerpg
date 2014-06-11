@@ -30,9 +30,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	/** Default paint handle. */
 	private Paint paint;
 	
-	/** Application Context. */
-	private Context context;
-	
+	public static Bitmap bomb;
 	public static Bitmap city;
 	public static Bitmap character;
 	public static Bitmap chest;
@@ -46,9 +44,10 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 	public static Bitmap shield_scroll;
 	public static Bitmap tileset;
 	
+	public static Bitmap item_slot;
+	
 	public GameSurface(Context context) {
 		super(context);
-		this.context = context;
 		getHolder().addCallback(this);
 		
 		//Initialize thread.
@@ -61,6 +60,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		
 		paint = new Paint();
 		
+		bomb = BitmapFactory.decodeResource(getResources(), R.drawable.bomb);
 		dead = BitmapFactory.decodeResource(getResources(), R.drawable.dead);
 		city = BitmapFactory.decodeResource(getResources(), R.drawable.city);
 		character = BitmapFactory.decodeResource(getResources(), R.drawable.c1);
@@ -73,7 +73,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
 		speed_scroll = BitmapFactory.decodeResource(getResources(), R.drawable.speed_scroll);
 		shield_scroll = BitmapFactory.decodeResource(getResources(), R.drawable.shield_scroll);
 		tileset = BitmapFactory.decodeResource(getResources(), R.drawable.tileset);
-				
+		
+		item_slot = BitmapFactory.decodeResource(getResources(), R.drawable.item_slot);
+		
 		setFocusable(true);
 	}
 

@@ -4,8 +4,6 @@ import java.util.Vector;
 
 import android.graphics.Point;
 
-import com.jmpmain.lvslrpg.entities.Item;
-
 public class Map {
 
 	public enum TileType{

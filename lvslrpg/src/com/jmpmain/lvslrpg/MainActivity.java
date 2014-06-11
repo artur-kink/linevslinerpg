@@ -12,10 +12,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
-import com.google.android.gms.appstate.AppStateManager;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
-import com.google.android.gms.plus.Plus;
 import com.google.example.games.basegameutils.BaseGameActivity;
 import com.jmpmain.lvslrpg.GameThread.Screen;
 
